@@ -7,6 +7,7 @@ import org.ducdoan.client.UI.RegistrationPanel;
 import org.ducdoan.client.UI.RoomOwnerPanel;
 import org.ducdoan.client.UI.RoomParticipantPanel;
 import org.ducdoan.client.UI.components.Toaster.Toaster;
+
 import org.ducdoan.config.ClientConfig;
 
 import javax.swing.*;
@@ -33,7 +34,7 @@ public class LivestreamClient {
     public static void main(String[] args) {
         frame = new JFrame("Livestream Application");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(840, 550);
+        frame.setSize(800, 450);
         frame.setLayout(new BorderLayout());
 
         showLoginPanel();

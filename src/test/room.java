@@ -89,43 +89,6 @@ public class RoomOwnerPanel extends JPanel {
         videoPanel.setBounds(0, 60, 800, 480);
         layeredPane.add(videoPanel, JLayeredPane.DEFAULT_LAYER);
 
-        screenSharePanel = new JPanel(new BorderLayout()) {
-            {
-                setDoubleBuffered(true);
-            }
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (screenImage != null) {
-                    g.drawImage(screenImage, 0, 0, getWidth(), getHeight(), null);
-                } else {
-                    g.setColor(Color.BLACK);
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            }
-        };
-        screenSharePanel.setPreferredSize(new Dimension(800, 480));
-        screenSharePanel.setBackground(UIUtils.COLOR_BACKGROUND);
-        screenSharePanel.setBounds(0, 60, 800, 480);
-        screenSharePanel.setVisible(false);
-        layeredPane.add(screenSharePanel, JLayeredPane.PALETTE_LAYER);
-
-        JPanel participantsPanel = new JPanel();
-        participantsPanel.setOpaque(false);
-        participantsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        ImageIcon originalIcon = new ImageIcon(
-                Objects.requireNonNull(getClass().getClassLoader().getResource("group.png")));
-        Image scaledImage = originalIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcon = new ImageIcon(scaledImage);
-        JLabel iconLabel = new JLabel(scaledIcon);
-        participantsLabel = new JLabel("0");
-        participantsLabel.setForeground(UIUtils.OFFWHITE);
-        participantsLabel.setFont(UIUtils.FONT_GENERAL_UI);
-        participantsPanel.add(iconLabel);
-        participantsPanel.add(participantsLabel);
-        videoPanel.add(participantsPanel, BorderLayout.NORTH);
-
         controlPanel = new JPanel();
         controlPanel.setBackground(UIUtils.COLOR_BACKGROUND);
         controlPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -166,8 +129,6 @@ public class RoomOwnerPanel extends JPanel {
         shareScreenButton.addActionListener(e -> shareScreen());
         controlPanel.add(shareScreenButton);
 
-        controlPanel.setBounds(0, 780, 800, 40);
-        videoPanel.setLayout(new BorderLayout());
         videoPanel.add(controlPanel, BorderLayout.SOUTH);
 
         commentPane = new JTextPane();
@@ -203,56 +164,6 @@ public class RoomOwnerPanel extends JPanel {
 
         connectWebSocket();
         startVideoStream();
-    }
-
-    private void shareScreen() {
-        isScreenSharing = !isScreenSharing;
-        screenSharePanel.setVisible(isScreenSharing);
-        if (isScreenSharing) {
-            videoPanel.setBounds(0, 60, 320, 240);
-            screenSharePanel.setBounds(0, 60, 800, 480);
-            layeredPane.setLayer(videoPanel, JLayeredPane.PALETTE_LAYER);
-            layeredPane.setLayer(screenSharePanel, JLayeredPane.DEFAULT_LAYER);
-            screenSharePanel.add(controlPanel, BorderLayout.SOUTH);
-            new Thread(() -> {
-                try {
-                    Robot robot = new Robot();
-                    Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-                    while (isScreenSharing && running) {
-                        screenImage = robot.createScreenCapture(screenRect);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        ImageIO.write(screenImage, "jpg", baos);
-                        byte[] imageBytes = baos.toByteArray();
-                        String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
-                        if (client != null && client.isOpen()) {
-                            client.send("SCREEN_SHARE:" + encodedImage);
-                        } else {
-                            System.out.println("WebSocket connection is not open.");
-                        }
-                        SwingUtilities.invokeLater(() -> screenSharePanel.repaint());
-                        Thread.sleep(100);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
-            if (client != null && client.isOpen()) {
-                client.send("SCREEN_SHARE_START");
-            }
-            System.out.println("Screen sharing started");
-        } else {
-            isScreenSharing = false;
-            screenImage = null;
-            videoPanel.setBounds(0, 60, 800, 480);
-            layeredPane.setLayer(videoPanel, JLayeredPane.DEFAULT_LAYER);
-            layeredPane.setLayer(screenSharePanel, JLayeredPane.PALETTE_LAYER);
-            videoPanel.add(controlPanel, BorderLayout.SOUTH);
-            screenSharePanel.repaint();
-            if (client != null && client.isOpen()) {
-                client.send("SCREEN_SHARE_STOP");
-            }
-            System.out.println("Screen sharing stopped");
-        }
     }
 
     private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
@@ -326,28 +237,8 @@ public class RoomOwnerPanel extends JPanel {
         }
     }
 
-    public void updateParticipantsCount(int count) {
-        participantsLabel.setText(String.valueOf(count));
-    }
-
-    private void styleButton(JButton button) {
-        button.setBackground(UIUtils.COLOR_INTERACTIVE);
-        button.setForeground(Color.white);
-        button.setFont(UIUtils.FONT_GENERAL_UI);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(UIUtils.COLOR_INTERACTIVE_DARKER);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(UIUtils.COLOR_INTERACTIVE);
-            }
-        });
+    private void shareScreen() {
+        // Implement screen sharing functionality here
     }
 
     private void connectWebSocket() {
@@ -420,25 +311,6 @@ public class RoomOwnerPanel extends JPanel {
         }).start();
     }
 
-    public void stopAllStreams() {
-        running = false;
-        if (grabber != null) {
-            try {
-                grabber.stop();
-                grabber.release();
-            } catch (FrameGrabber.Exception e) {
-                e.printStackTrace();
-            }
-            grabber = null;
-        }
-        if (microphone != null) {
-            microphone.stop();
-            microphone.close();
-            microphone = null;
-        }
-        isScreenSharing = false;
-    }
-
     private class SendCommentActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -469,5 +341,25 @@ public class RoomOwnerPanel extends JPanel {
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
+    }
+
+    private void styleButton(JButton button) {
+        button.setBackground(UIUtils.COLOR_INTERACTIVE);
+        button.setForeground(Color.white);
+        button.setFont(UIUtils.FONT_GENERAL_UI);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(UIUtils.COLOR_INTERACTIVE_DARKER);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(UIUtils.COLOR_INTERACTIVE);
+            }
+        });
     }
 }

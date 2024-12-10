@@ -1,4 +1,10 @@
-package org.ducdoan.client.UI;
+package org.ducdoan.client.UI.components;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.SQLException;
+import java.util.Objects;
 
 import org.ducdoan.client.LivestreamClient;
 import org.ducdoan.client.UI.components.HyperlinkText;
@@ -9,38 +15,32 @@ import org.ducdoan.client.UI.components.UIUtils;
 import org.ducdoan.controller.UserController;
 import org.ducdoan.server.model.User;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.sql.SQLException;
-import java.util.Objects;
-
-public class LoginPanel extends JPanel {
+public class test extends JPanel {
 
     private final Toaster toaster;
-    private TextFieldUsername usernameField;
-    private TextFieldPassword passwordField;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
     private UserController userController = new UserController();
 
-    public LoginPanel() {
+    public test() {
         setLayout(null); // Absolute layout
         setPreferredSize(new Dimension(800, 450));
 
+        // Background color
         setBackground(new Color(255, 214, 214));
 
         // Add components
         addLogo();
         addLoginLabel();
-        addUsernameTextField();
-        addPasswordTextField();
+        addUsernameField();
+        addPasswordField();
         addLoginButton();
         addRegisterLink();
-
+        
         // Initialize toaster
         toaster = new Toaster(this);
     }
-
-    private JPanel getMainJPanel() {
+        private JPanel getMainJPanel() {
         JPanel panel = new JPanel();
         panel.setPreferredSize(new Dimension(800, 450));
         panel.setBackground(UIUtils.COLOR_BACKGROUND_LOGIN);
@@ -59,9 +59,9 @@ public class LoginPanel extends JPanel {
             public void mouseDragged(MouseEvent e) {
                 int x = e.getXOnScreen();
                 int y = e.getYOnScreen();
-                SwingUtilities.getWindowAncestor(LoginPanel.this).setLocation(
-                        SwingUtilities.getWindowAncestor(LoginPanel.this).getLocationOnScreen().x + x - lastX,
-                        SwingUtilities.getWindowAncestor(LoginPanel.this).getLocationOnScreen().y + y - lastY);
+                SwingUtilities.getWindowAncestor(test.this).setLocation(
+                        SwingUtilities.getWindowAncestor(test.this).getLocationOnScreen().x + x - lastX,
+                        SwingUtilities.getWindowAncestor(test.this).getLocationOnScreen().y + y - lastY);
                 lastX = x;
                 lastY = y;
             }
@@ -96,30 +96,29 @@ public class LoginPanel extends JPanel {
         JLabel loginLabel = new JLabel("LOGIN");
         loginLabel.setFont(new Font("Segoe UI Black", Font.BOLD, 36));
         loginLabel.setForeground(new Color(0, 135, 255));
-        loginLabel.setBounds(490, 30, 300, 50);
+        loginLabel.setBounds(450, 50, 300, 50);
         add(loginLabel);
     }
 
-
-    private void addUsernameTextField() {
+    private void addUsernameField() {
         JLabel usernameLabel = new JLabel("Username");
         usernameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         usernameLabel.setBounds(420, 110, 300, 20);
         add(usernameLabel);
 
-        usernameField = new TextFieldUsername();
+        usernameField = new JTextField();
         usernameField.setFont(new Font("Arial", Font.PLAIN, 14));
         usernameField.setBounds(420, 140, 250, 30);
         add(usernameField);
     }
 
-    private void addPasswordTextField() {
+    private void addPasswordField() {
         JLabel passwordLabel = new JLabel("Password");
         passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         passwordLabel.setBounds(420, 180, 300, 20);
         add(passwordLabel);
 
-        passwordField = new TextFieldPassword();
+        passwordField = new JPasswordField();
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         passwordField.setBounds(420, 210, 250, 30);
         add(passwordField);
@@ -133,27 +132,10 @@ public class LoginPanel extends JPanel {
         loginButton.setFocusPainted(false);
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
         loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-
-        loginButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                loginEventHandler();
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                loginButton.setBackground(UIUtils.COLOR_INTERACTIVE_DARKER);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                loginButton.setBackground(UIUtils.COLOR_BTN_LOGIN);
-            }
-        });
-
+        loginButton.addActionListener(e -> handleLogin());
         add(loginButton);
     }
+
     private void addRegisterLink() {
         JLabel registerLabel = new JLabel("I don't have an account");
         registerLabel.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -167,37 +149,17 @@ public class LoginPanel extends JPanel {
         signUpButton.setFocusPainted(false);
         signUpButton.setFont(new Font("Arial", Font.BOLD, 12));
         signUpButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-//        signUpButton.addActionListener(e -> addRegisterButton());
-        signUpButton.addActionListener(e -> {
-            LivestreamClient.showRegistrationPanel();
-        });
-
-        
+        signUpButton.addActionListener(e -> handleRegister(this));
         add(signUpButton);
     }
 
-    private void addRegisterButton() {
-        System.out.println("Sign Up button clicked");
-        add(new HyperlinkText(UIUtils.BUTTON_TEXT_REGISTER, 625, 320, () -> {
-            LivestreamClient.showRegistrationPanel();
-        }));
-    }
-
-    private void loginEventHandler() {
+    private void handleLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
         try {
             User user = userController.login(username, password);
             if (user != null) {
-                String message = "LOGIN:" + username + ":" + password;
-                if (LivestreamClient.sendBroadcastMessage(message)) {
-                    LivestreamClient.setUsername(username);
-                    LivestreamClient.setUserId(String.valueOf(user.getId()));
-                    LivestreamClient.showMainPanel();
-                } else {
-                    toaster.error("Login failed");
-                }
+                toaster.success("Login successful!");
             } else {
                 toaster.error("Invalid username or password");
             }
@@ -205,5 +167,21 @@ public class LoginPanel extends JPanel {
             ex.printStackTrace();
             toaster.error("An error occurred while logging in");
         }
+    }
+
+    private void handleRegister(JPanel panel) {
+        System.out.println("Sign Up button clicked");
+         panel.add(new HyperlinkText(UIUtils.BUTTON_TEXT_REGISTER, 625, 320, () -> {
+            LivestreamClient.showRegistrationPanel();
+        }));
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Login Panel");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(new test());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 }
