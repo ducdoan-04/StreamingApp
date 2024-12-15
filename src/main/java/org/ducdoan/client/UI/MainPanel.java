@@ -1,21 +1,24 @@
 package org.ducdoan.client.UI;
 
-import org.ducdoan.client.LivestreamClient;
-import org.ducdoan.client.UI.components.UIUtils;
-
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+
+import org.ducdoan.client.LivestreamClient;
+import org.ducdoan.client.UI.components.UIUtils;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 
 public class MainPanel extends JPanel {
     private JTable roomTable;
     private DefaultTableModel tableModel;
+    private JTextField searchField;
+    private String[] allRooms;
 
     public MainPanel() {
         setLayout(new BorderLayout());
@@ -25,8 +28,47 @@ public class MainPanel extends JPanel {
         usernameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         usernameLabel.setFont(UIUtils.FONT_GENERAL_UI);
         usernameLabel.setForeground(UIUtils.OFFWHITE);
-        usernameLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        usernameLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         add(usernameLabel, BorderLayout.NORTH);
+
+        searchField = new JTextField();
+        searchField.setFont(UIUtils.FONT_GENERAL_UI);
+        searchField.setForeground(UIUtils.OFFWHITE);
+        searchField.setBackground(UIUtils.COLOR_BACKGROUND);
+        searchField.setCaretColor(UIUtils.OFFWHITE);
+        searchField.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterRooms();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterRooms();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterRooms();
+            }
+        });
+
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.setBackground(UIUtils.COLOR_BACKGROUND);
+        searchPanel.setBorder(BorderFactory.createEmptyBorder(2, 20, 5, 20));
+        JLabel searchLabel = new JLabel("Search: ");
+        searchLabel.setFont(UIUtils.FONT_GENERAL_UI.deriveFont(18f));
+        searchLabel.setForeground(UIUtils.OFFWHITE);
+        searchPanel.add(searchLabel, BorderLayout.WEST);
+        searchPanel.add(searchField, BorderLayout.CENTER);
+
+        JPanel northPanel = new JPanel(new BorderLayout());
+        northPanel.setBackground(UIUtils.COLOR_BACKGROUND);
+        northPanel.add(usernameLabel, BorderLayout.NORTH);
+        northPanel.add(searchPanel, BorderLayout.SOUTH);
+
+        add(northPanel, BorderLayout.NORTH);
 
         String[] columnNames = { "Name", "Owner", "Participants" };
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -90,7 +132,11 @@ public class MainPanel extends JPanel {
         createRoomButton.addActionListener(e -> {
             String roomName = JOptionPane.showInputDialog(this, "Enter room name:");
             if (roomName != null && !roomName.trim().isEmpty()) {
-                LivestreamClient.createRoom(roomName.trim());
+                String multicastAddress = generateRandomMulticastAddress();
+                int multicastPort = generateRandomMulticastPort();
+                LivestreamClient.setCurrentMulticastAddress(multicastAddress);
+                LivestreamClient.setCurrentMulticastPort(multicastPort);
+                LivestreamClient.createRoom(roomName.trim(), multicastAddress, multicastPort);
             }
         });
         buttonPanel.add(createRoomButton);
@@ -101,6 +147,18 @@ public class MainPanel extends JPanel {
         buttonPanel.add(logoutButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private String generateRandomMulticastAddress() {
+        int firstOctet = 224 + (int) (Math.random() * 16);
+        int secondOctet = (int) (Math.random() * 256);
+        int thirdOctet = (int) (Math.random() * 256);
+        int fourthOctet = (int) (Math.random() * 256);
+        return firstOctet + "." + secondOctet + "." + thirdOctet + "." + fourthOctet;
+    }
+
+    private int generateRandomMulticastPort() {
+        return 5000 + (int) (Math.random() * 1000);
     }
 
     private void styleButton(JButton button) {
@@ -124,16 +182,27 @@ public class MainPanel extends JPanel {
     }
 
     public void updateRoomList(String roomListString) {
+        allRooms = roomListString.split(",");
+        filterRooms();
+    }
+
+    private void filterRooms() {
+        if (allRooms == null) {
+            return;
+        }
+        String searchText = searchField.getText().toLowerCase();
         tableModel.setRowCount(0);
-        String[] rooms = roomListString.split(",");
-        for (String room : rooms) {
+        for (String room : allRooms) {
             if (!room.trim().isEmpty()) {
                 String[] roomDetails = room.split("\\|");
-                if (roomDetails.length == 4) {
-                    tableModel.addRow(roomDetails);
+                if (roomDetails.length == 6) {
+                    String roomName = roomDetails[0].toLowerCase();
+                    String roomOwner = roomDetails[1].toLowerCase();
+                    if (roomName.contains(searchText) || roomOwner.contains(searchText)) {
+                        tableModel.addRow(roomDetails);
+                    }
                 }
             }
         }
     }
-
 }

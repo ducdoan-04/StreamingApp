@@ -304,6 +304,8 @@ public class LivestreamClient {
 
         listenForMulticastMessages(multicastAddress, multicastPort);
     }
+    
+
 
     public static void sendComment(String comment) {
         if (currentRoom != null) {
