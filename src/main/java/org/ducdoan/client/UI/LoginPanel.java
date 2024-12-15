@@ -1,6 +1,5 @@
 package org.ducdoan.client.UI;
 
-import org.ducdoan.client.LivestreamClient;
 import org.ducdoan.client.UI.components.HyperlinkText;
 import org.ducdoan.client.UI.components.TextFieldPassword;
 import org.ducdoan.client.UI.components.TextFieldUsername;
@@ -14,6 +13,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
 import java.util.Objects;
+import org.ducdoan.client.LivestreamClientJFrame;
 
 public class LoginPanel extends JPanel {
 
@@ -24,7 +24,7 @@ public class LoginPanel extends JPanel {
 
     public LoginPanel() {
         setLayout(null); // Absolute layout
-        setPreferredSize(new Dimension(800, 450));
+        setPreferredSize(new Dimension(800, 500));
 
         setBackground(new Color(255, 214, 214));
 
@@ -42,7 +42,7 @@ public class LoginPanel extends JPanel {
 
     private JPanel getMainJPanel() {
         JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension(800, 450));
+        panel.setPreferredSize(new Dimension(800, 500));
         panel.setBackground(UIUtils.COLOR_BACKGROUND_LOGIN);
         panel.setLayout(null);
 
@@ -75,7 +75,7 @@ public class LoginPanel extends JPanel {
     private void addLogo() {
         JPanel leftPanel = new JPanel();
         leftPanel.setBackground(new Color(255, 214, 214));
-        leftPanel.setBounds(0, 0, 350, 450);
+        leftPanel.setBounds(0, 0, 350, 500);
         leftPanel.setLayout(null);
 
         JLabel logoLabel = new JLabel();
@@ -170,7 +170,7 @@ public class LoginPanel extends JPanel {
         
 //        signUpButton.addActionListener(e -> addRegisterButton());
         signUpButton.addActionListener(e -> {
-            LivestreamClient.showRegistrationPanel();
+            LivestreamClientJFrame.showRegistrationPanel();
         });
 
         
@@ -180,30 +180,38 @@ public class LoginPanel extends JPanel {
     private void addRegisterButton() {
         System.out.println("Sign Up button clicked");
         add(new HyperlinkText(UIUtils.BUTTON_TEXT_REGISTER, 625, 320, () -> {
-            LivestreamClient.showRegistrationPanel();
+            LivestreamClientJFrame.showRegistrationPanel();
         }));
     }
 
-    private void loginEventHandler() {
-        String username = usernameField.getText();
-        String password = new String(passwordField.getPassword());
-        try {
-            User user = userController.login(username, password);
-            if (user != null) {
-                String message = "LOGIN:" + username + ":" + password;
-                if (LivestreamClient.sendBroadcastMessage(message)) {
-                    LivestreamClient.setUsername(username);
-                    LivestreamClient.setUserId(String.valueOf(user.getId()));
-                    LivestreamClient.showMainPanel();
-                } else {
-                    toaster.error("Login failed");
-                }
-            } else {
-                toaster.error("Invalid username or password");
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            toaster.error("An error occurred while logging in");
-        }
+private void loginEventHandler() {
+    String username = usernameField.getText();
+    String password = new String(passwordField.getPassword());
+
+    // Check if the username or password is empty
+    if (username.isEmpty() || password.isEmpty()) {
+        toaster.error("Username or Password cannot be empty");
+        return; // Prevent login attempt if either field is empty
     }
+
+    try {
+        User user = userController.login(username, password);
+        if (user != null) {
+            String message = "LOGIN:" + username + ":" + password;
+            if (LivestreamClientJFrame.sendBroadcastMessage(message)) {
+                LivestreamClientJFrame.setUsername(username);
+                LivestreamClientJFrame.setUserId(String.valueOf(user.getId()));
+                LivestreamClientJFrame.showMainPanel();
+            } else {
+                toaster.error("Login failed");
+            }
+        } else {
+            toaster.error("Invalid username or password");
+        }
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        toaster.error("An error occurred while logging in");
+    }
+}
+
 }

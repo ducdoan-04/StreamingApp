@@ -199,10 +199,10 @@ public class RegistrationPanel1 extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSignUpActionPerformed
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-        LoginPanel1 LoginFrame = new LoginPanel1();
+        LoginPanel LoginFrame = new LoginPanel();
         LoginFrame.setVisible(true);
-        LoginFrame.pack();
-        LoginFrame.setLocationRelativeTo(null);
+//        LoginFrame.pack();
+//        LoginFrame.setLocationRelativeTo(null);
         javax.swing.SwingUtilities.getWindowAncestor(this).dispose();
     }//GEN-LAST:event_btnLoginActionPerformed
 

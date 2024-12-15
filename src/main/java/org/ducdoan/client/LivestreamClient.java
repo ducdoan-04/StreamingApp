@@ -7,16 +7,18 @@ import org.ducdoan.client.UI.RegistrationPanel;
 import org.ducdoan.client.UI.RoomOwnerPanel;
 import org.ducdoan.client.UI.RoomParticipantPanel;
 import org.ducdoan.client.UI.components.Toaster.Toaster;
-
 import org.ducdoan.config.ClientConfig;
+import org.ducdoan.config.ServerConfig;
+import org.ducdoan.server.model.Room;
 
 import javax.swing.*;
-        import java.awt.*;
-        import java.io.IOException;
+import java.awt.*;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Arrays;
 
 public class LivestreamClient {
     private static JFrame frame;
@@ -30,11 +32,13 @@ public class LivestreamClient {
     private static boolean checkRoomOwnerAfterUpdate = false;
     private static Toaster toaster;
     private static MainPanel mainPanel;
+    private static String currentMulticastAddress;
+    private static int currentMulticastPort;
 
     public static void main(String[] args) {
         frame = new JFrame("Livestream Application");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 450);
+        frame.setSize(800, 500);
         frame.setLayout(new BorderLayout());
 
         showLoginPanel();
@@ -96,10 +100,11 @@ public class LivestreamClient {
 
     public static boolean sendBroadcastMessage(String message) {
         try (DatagramSocket socket = new DatagramSocket()) {
+            socket.setBroadcast(true);
             InetAddress group = InetAddress.getByName(ClientConfig.BROADCAST_ADDRESS);
             String fullMessage = message + ":" + InetAddress.getLocalHost().getHostAddress();
             byte[] buffer = fullMessage.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, ClientConfig.BROADCAST_PORT);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, ServerConfig.BROADCAST_PORT);
             socket.send(packet);
             return true;
         } catch (IOException e) {
@@ -109,48 +114,84 @@ public class LivestreamClient {
     }
 
     public static void listenForBroadcastMessages() {
-        try (MulticastSocket socket = new MulticastSocket(ClientConfig.BROADCAST_PORT)) {
-            InetAddress group = InetAddress.getByName(ClientConfig.BROADCAST_ADDRESS);
-            socket.joinGroup(group);
+        try (DatagramSocket socket = new DatagramSocket(ClientConfig.BROADCAST_PORT)) {
             byte[] buffer = new byte[1024];
+            System.out.println("Listening for broadcast messages on port " + ClientConfig.BROADCAST_PORT + "...");
+
             while (true) {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 String message = new String(packet.getData(), 0, packet.getLength());
                 System.out.println("Received broadcast message: " + message);
+
+                // Xử lý thông điệp tùy theo loại message
                 if (message.startsWith("ROOM_LIST:")) {
                     updateRoomList(message.substring(10));
                 } else if (message.startsWith("COMMENT:")) {
-                    String[] parts = message.split(":");
-                    if (parts.length == 5) {
-                        String sender = parts[1];
-                        String comment = parts[2];
-                        boolean isOwner = sender.equals(getRoomOwner(currentRoom));
-                        if (!sender.equals(username) && currentRoom != null && currentRoom.equals(parts[3])) {
-                            comment = sender + ": " + comment;
-                            if (liveStreamPanel != null) {
-                                liveStreamPanel.addComment(comment, isOwner);
-                            } else if (roomOwnerPanel != null) {
-                                roomOwnerPanel.addComment(comment, isOwner);
-
-                            } else if (roomParticipantPanel != null) {
-                                roomParticipantPanel.addComment(comment, isOwner);
-                            }
-                        }
-                    }
+                    handleCommentMessage(message);
                 } else if (message.startsWith("ROOM_CLOSED:")) {
-                    String roomName = message.split(":")[1];
-                    System.out.println("Received room closed message for room á hahaahhaha: " + roomName);
-                    if (currentRoom != null && currentRoom.equals(roomName)) {
-                        toaster.success("The room has been closed by the owner.");
-                        JOptionPane.showMessageDialog(frame, "The room has been closed by the owner.", "Room Closed",
-                                JOptionPane.INFORMATION_MESSAGE);
-                        leaveRoom();
-                    }
+                    handleRoomClosedMessage(message);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void listenForMulticastMessages(String multicastAddress, int multicastPort) {
+        new Thread(() -> {
+            try (MulticastSocket socket = new MulticastSocket(multicastPort)) {
+                InetAddress group = InetAddress.getByName(multicastAddress);
+                socket.joinGroup(group);
+                byte[] buffer = new byte[1024];
+                System.out.println(
+                        "Listening for multicast messages on " + multicastAddress + ":" + multicastPort + "...");
+
+                while (true) {
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                    socket.receive(packet);
+                    String message = new String(packet.getData(), 0, packet.getLength());
+                    System.out.println("Received multicast message: " + message);
+
+                    if (message.startsWith("COMMENT:")) {
+                        handleCommentMessage(message);
+                    } else if (message.startsWith("ROOM_CLOSED:")) {
+                        handleRoomClosedMessage(message);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private static void handleCommentMessage(String message) {
+        String[] parts = message.split(":");
+        if (parts.length == 5) {
+            String sender = parts[1];
+            String comment = parts[2];
+            boolean isOwner = sender.equals(getRoomOwner(currentRoom));
+            if (!sender.equals(username) && currentRoom != null && currentRoom.equals(parts[3])) {
+                comment = sender + ": " + comment;
+                if (liveStreamPanel != null) {
+                    liveStreamPanel.addComment(comment, isOwner);
+                } else if (roomOwnerPanel != null) {
+                    roomOwnerPanel.addComment(comment, isOwner);
+                } else if (roomParticipantPanel != null) {
+                    roomParticipantPanel.addComment(comment, isOwner);
+                }
+            }
+        }
+    }
+
+    private static void handleRoomClosedMessage(String message) {
+        String roomName = message.split(":")[1];
+        System.out.println("Received room closed message for room: " + roomName);
+        if (currentRoom != null && currentRoom.equals(roomName)) {
+            toaster.success("The room has been closed by the owner.");
+            JOptionPane.showMessageDialog(frame, "The room has been closed by the owner.", "Room Closed",
+                    JOptionPane.INFORMATION_MESSAGE);
+            leaveRoom();
         }
     }
 
@@ -176,10 +217,14 @@ public class LivestreamClient {
             for (String room : rooms) {
                 if (!room.isEmpty()) {
                     String[] roomDetails = room.split("\\|");
-                    if (roomDetails.length == 4) {
+                    if (roomDetails.length == 6) {
                         String roomName = roomDetails[0];
                         String owner = roomDetails[1];
                         String participantCount = roomDetails[3];
+
+                        setCurrentMulticastAddress(roomDetails[4]);
+                        setCurrentMulticastPort(Integer.parseInt(roomDetails[5]));
+
                         roomListModel.addElement(
                                 roomName + " (Owner: " + owner + ", Participants: " + participantCount + ")");
 
@@ -217,6 +262,8 @@ public class LivestreamClient {
         System.out.println("Attempting to join room: " + roomName);
         sendBroadcastMessage("JOIN_ROOM:" + username + ":" + userId + ":" + roomName);
         checkRoomOwnerAfterUpdate = true;
+
+        listenForMulticastMessages(LivestreamClient.getCurrentMulticastAddress(), LivestreamClient.getCurrentMulticastPort());
     }
 
     public static void closeRoom() {
@@ -238,8 +285,9 @@ public class LivestreamClient {
         }
     }
 
-    public static void createRoom(String roomName) {
-        String message = "CREATE_ROOM:" + username + ":" + userId + ":" + roomName;
+    public static void createRoom(String roomName, String multicastAddress, int multicastPort) {
+        String message = "CREATE_ROOM:" + username + ":" + userId + ":" + roomName + ":" + multicastAddress + ":"
+                + multicastPort;
         if (sendBroadcastMessage(message)) {
             System.out.println("Create room request sent successfully for room: " + roomName);
             currentRoom = roomName;
@@ -247,6 +295,14 @@ public class LivestreamClient {
         } else {
             toaster.error("Failed to send create room request.");
         }
+
+        Room room = new Room();
+        room.setRoomName(roomName);
+        room.setOwnerId(Integer.parseInt(userId));
+        room.setMulticastAddress(multicastAddress);
+        room.setMulticastPort(multicastPort);
+
+        listenForMulticastMessages(multicastAddress, multicastPort);
     }
 
     public static void sendComment(String comment) {
@@ -287,5 +343,56 @@ public class LivestreamClient {
         }
         System.out.println("User is not the owner of the room: " + roomName);
         return false;
+    }
+
+    public static Room getRoomDetails(String roomName) {
+        for (int i = 0; i < roomListModel.size(); i++) {
+            String roomDetails = roomListModel.get(i);
+            System.out.println("Checking room details: " + roomDetails);
+            if (roomDetails.startsWith(roomName + " (Owner: ")) {
+                String[] details = roomDetails.split("\\s*\\(Owner:\\s*|,\\s*Participants:\\s*|\\)");
+                System.out.println("Room details split into: " + Arrays.toString(details));
+                if (details.length >= 3) {
+                    String owner = details[1].trim();
+                    int participantCount = Integer.parseInt(details[2].trim());
+
+                    String multicastAddress = getCurrentMulticastAddress();
+                    int multicastPort = getCurrentMulticastPort();
+
+                    System.out.println("Owner: " + owner);
+                    System.out.println("Participant Count: " + participantCount);
+                    System.out.println("Multicast Address: " + multicastAddress);
+                    System.out.println("Multicast Port: " + multicastPort);
+
+                    Room room = new Room();
+                    room.setRoomName(roomName);
+                    room.setOwnerId(Integer.parseInt(owner));
+                    room.setMulticastAddress(multicastAddress);
+                    room.setMulticastPort(multicastPort);
+
+                    return room;
+                } else {
+                    System.out.println("Room details length is less than expected.");
+                }
+            }
+        }
+        System.out.println("Room not found: " + roomName);
+        return null;
+    }
+
+    public static void setCurrentMulticastAddress(String currentMulticastAddress) {
+        LivestreamClient.currentMulticastAddress = currentMulticastAddress;
+    }
+
+    public static void setCurrentMulticastPort(int currentMulticastPort) {
+        LivestreamClient.currentMulticastPort = currentMulticastPort;
+    }
+
+    public static String getCurrentMulticastAddress() {
+        return currentMulticastAddress;
+    }
+
+    public static int getCurrentMulticastPort() {
+        return currentMulticastPort;
     }
 }
