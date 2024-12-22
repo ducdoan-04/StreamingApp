@@ -357,7 +357,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jlbInfor" min="-2" pref="133" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jtfSearch" min="-2" pref="240" max="-2" attributes="0"/>
+                      <Component id="searchField" min="-2" pref="240" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jbtSearch" min="-2" pref="124" max="-2" attributes="0"/>
                       <EmptySpace pref="133" max="32767" attributes="0"/>
@@ -372,7 +372,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jlbInfor" alignment="3" max="32767" attributes="0"/>
-                          <Component id="jtfSearch" alignment="3" max="32767" attributes="0"/>
+                          <Component id="searchField" alignment="3" max="32767" attributes="0"/>
                           <Component id="jbtSearch" alignment="3" max="32767" attributes="0"/>
                           <Component id="jbtLogout" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -396,7 +396,7 @@
                 <Property name="text" type="java.lang.String" value="Home"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="jtfSearch">
+            <Component class="javax.swing.JTextField" name="searchField">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="f2" green="f2" red="f2" type="rgb"/>
@@ -406,7 +406,7 @@
                 </Property>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jtfSearchActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="searchFieldActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jbtSearch">
@@ -429,6 +429,9 @@
                   <Dimension value="[75, 29]"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbtSearchActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jbtLogout">
               <Properties>

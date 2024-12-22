@@ -83,6 +83,7 @@ public class UDPBroadcastServer extends Thread {
                 sendRoomList();
                 break;
             case "CREATE_ROOM":
+                String titleStream = parts.length > 6 ? parts[6] : "Untitled";
                 if (roomName == null || roomName.trim().isEmpty()) {
                     System.out.println("Invalid room name: " + roomName);
                 } else {
@@ -95,8 +96,8 @@ public class UDPBroadcastServer extends Thread {
                     if (isDuplicate) {
                         System.out.println("Multicast address and port combination already in use: " + multicastAddress + ":" + multicastPort);
                     } else {
-                        roomManager.createRoom(roomName, username, Integer.parseInt(userId), multicastAddress, multicastPort);
-                        System.out.println("Room created: " + roomName + " by " + username);
+                        roomManager.createRoom(roomName, username, Integer.parseInt(userId), multicastAddress, multicastPort, titleStream);
+                        System.out.println("Room created: " + roomName + " title: "+ titleStream + " by " + username);
                     }
                 }
                 sendRoomList();
@@ -190,7 +191,8 @@ public class UDPBroadcastServer extends Thread {
                         .append(room.getParticipantCount()).append("|")
                         .append(room.getOwnerId()).append("|")
                         .append(room.getMulticastAddress()).append("|")
-                        .append(room.getMulticastPort()).append(",");
+                        .append(room.getMulticastPort()).append("|")
+                        .append(room.getTitleStream()).append(",");
             }
 
             byte[] buffer = roomList.toString().getBytes();

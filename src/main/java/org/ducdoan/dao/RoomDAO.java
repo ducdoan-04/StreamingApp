@@ -7,12 +7,13 @@ import java.sql.*;
 
 public class RoomDAO {
     public Room createRoom(Room room) throws SQLException {
-        String query = "INSERT INTO rooms (name, owner_id, start_time) VALUES (?, ?, ?)";
+        String query = "INSERT INTO rooms (name, owner_id, start_time, title_stream) VALUES (?, ?, ?, ?)";
         try (Connection connection = DatabaseUtils.getConnection();
             PreparedStatement statement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, room.getRoomName());
             statement.setInt(2, room.getOwnerId());
             statement.setTimestamp(3, room.getStartTime());
+            statement.setString(4, room.getTitleStream());
             statement.executeUpdate();
 
             ResultSet generatedKeys = statement.getGeneratedKeys();
@@ -37,6 +38,7 @@ public class RoomDAO {
                 room.setOwnerId(resultSet.getInt("owner_id"));
                 room.setStartTime(resultSet.getTimestamp("start_time"));
                 room.setEndTime(resultSet.getTimestamp("end_time"));
+                room.setTitleStream(resultSet.getString("title_stream"));
                 return room;
             }
         }
