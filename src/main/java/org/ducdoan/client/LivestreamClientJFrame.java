@@ -20,7 +20,7 @@ import org.ducdoan.client.UI.LiveStreamPanel;
 import org.ducdoan.client.UI.LoginPanel;
 import org.ducdoan.client.UI.RegistrationPanel;
 import org.ducdoan.client.UI.RoomOwnerPanel1;
-import org.ducdoan.client.UI.RoomParticipantPanel;
+import org.ducdoan.client.UI.RoomParticipantPanel1;
 import org.ducdoan.client.UI.components.Toaster.Toaster;
 import org.ducdoan.client.backend.Backend;
 import org.ducdoan.config.ClientConfig;
@@ -33,7 +33,7 @@ private static HomePanel HomePanel;
 private static MainPanel MainPanel;
 private static LiveStreamPanel liveStreamPanel;
 private static RoomOwnerPanel1 roomOwnerPanel;
-private static RoomParticipantPanel roomParticipantPanel;
+private static RoomParticipantPanel1 roomParticipantPanel;
 //private static JTabbedPane tapMain;
 private static JFrame frame2;
 //-----------------------------
@@ -149,7 +149,7 @@ private static int currentMulticastPort;
         jbtHome.setBackground(new java.awt.Color(138, 217, 163));
         jbtHome.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         jbtHome.setForeground(new java.awt.Color(255, 255, 255));
-        jbtHome.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON\\home2.png")); // NOI18N
+        jbtHome.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON2\\home.png")); // NOI18N
         jbtHome.setText("Home");
         jbtHome.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jbtHome.addActionListener(new java.awt.event.ActionListener() {
@@ -161,7 +161,7 @@ private static int currentMulticastPort;
         jbtCreateRoom.setBackground(new java.awt.Color(138, 217, 163));
         jbtCreateRoom.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         jbtCreateRoom.setForeground(new java.awt.Color(255, 255, 255));
-        jbtCreateRoom.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON\\home2.png")); // NOI18N
+        jbtCreateRoom.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON2\\stream.png")); // NOI18N
         jbtCreateRoom.setText("Live now");
         jbtCreateRoom.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jbtCreateRoom.addActionListener(new java.awt.event.ActionListener() {
@@ -173,14 +173,14 @@ private static int currentMulticastPort;
         jbtFollowing.setBackground(new java.awt.Color(138, 217, 163));
         jbtFollowing.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         jbtFollowing.setForeground(new java.awt.Color(255, 255, 255));
-        jbtFollowing.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON\\user32.png")); // NOI18N
+        jbtFollowing.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON2\\follow.png")); // NOI18N
         jbtFollowing.setText("Following");
         jbtFollowing.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 
         jbtAccount.setBackground(new java.awt.Color(138, 217, 163));
         jbtAccount.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         jbtAccount.setForeground(new java.awt.Color(255, 255, 255));
-        jbtAccount.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON\\head.png")); // NOI18N
+        jbtAccount.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON2\\user32.png")); // NOI18N
         jbtAccount.setText("Account");
         jbtAccount.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 
@@ -563,7 +563,7 @@ private static int currentMulticastPort;
 
     public static void showRoomParticipantPanel() {
       if (roomParticipantPanel == null) {
-            roomParticipantPanel = new RoomParticipantPanel();
+            roomParticipantPanel = new RoomParticipantPanel1();
             ImageIcon icon = new ImageIcon(MainFrame.getClass().getResource("/ICON/chat-16.png"));
             MainFrame.tapMain.addTab("Room Participant", icon, roomParticipantPanel, "Room Participant");
         }
