@@ -680,11 +680,12 @@ private static int currentMulticastPort;
 
                 if (message.startsWith("ROOM_LIST:")) {
                     String roomList = message.substring(10);
-                    
-                    new javax.swing.Timer(2000, e -> {
-                        SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
-                        System.out.println("R--" + roomList);
-                    }).setRepeats(false);
+                    System.out.println("set room" + roomList);
+                    SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
+//                    new javax.swing.Timer(2000, e -> {
+//                        SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
+//                        System.out.println("R--" + roomList);
+//                    }).setRepeats(false);
                    
                 } else if (message.startsWith("COMMENT:")) {
                     handleCommentMessage(message);

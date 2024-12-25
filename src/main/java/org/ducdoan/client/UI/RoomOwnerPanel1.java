@@ -411,7 +411,7 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
         private void startVideoStream() {
         new Thread(() -> {
             try {
-                grabber = new VideoInputFrameGrabber(1);//Setup camera to default
+                grabber = new VideoInputFrameGrabber(0);//Setup camera to default
                 grabber.start();
                 converter = new Java2DFrameConverter();
                 while (running) {

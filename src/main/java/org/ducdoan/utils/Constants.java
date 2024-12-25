@@ -5,8 +5,8 @@ import java.net.UnknownHostException;
 
 public class Constants {
     public static final String SERVER_ADDRESS;
-    public static final int SERVER_PORT = 8080;
-    public static final int BROADCAST_PORT = 9877;
+    public static final int SERVER_PORT;
+    public static final int BROADCAST_PORT;
 
     static {
         String address = "127.0.0.1";
@@ -16,5 +16,9 @@ public class Constants {
             e.printStackTrace();
         }
         SERVER_ADDRESS = "192.168.1.8"; //ip server || address
+        SERVER_PORT = 8080;
+        BROADCAST_PORT = 9877;
+
+
     }
 }
