@@ -538,7 +538,30 @@ private static int currentMulticastPort;
         MainFrame.setVisible(true); 
         frame2.dispose(); 
         
+        showHome();
     }
+    
+    public static void showHome(){
+        if (HomePanel == null) {
+            HomePanel = new HomePanel(MainFrame.getInstance());
+            ImageIcon icon = new ImageIcon(MainFrame.getClass().getResource("/ICON/chat-16.png"));
+            MainFrame.tapMain.addTab("HOME", icon, HomePanel);
+         }
+            MainFrame.tapMain.setSelectedComponent(HomePanel);
+    }
+    
+    public static void closeHome() {
+        if (HomePanel != null) {
+            // Kiểm tra xem tab "HOME" có đang mở không
+            int tabIndex = MainFrame.tapMain.indexOfComponent(HomePanel);
+            if (tabIndex >= 0) {
+                // Đóng tab
+                MainFrame.tapMain.removeTabAt(tabIndex);
+                HomePanel = null; // Xóa tham chiếu đến HomePanel
+            }
+        }
+    }
+    
     public static void showLiveStreamPanel() {
 
     }
@@ -549,6 +572,7 @@ private static int currentMulticastPort;
             MainFrame.tapMain.addTab("Room Owner", icon, roomOwnerPanel, "Room Owner");
         }
         MainFrame.tapMain.setSelectedComponent(roomOwnerPanel);
+        closeHome();
     }
     
     public static void closeRoomOwnerPanel() {
@@ -559,6 +583,7 @@ private static int currentMulticastPort;
                 roomOwnerPanel = null; // Đặt giá trị roomOwnerPanel thành null để giải phóng tham chiếu
             }
         }
+        showHome();
     }
 
     public static void showRoomParticipantPanel() {
@@ -568,6 +593,7 @@ private static int currentMulticastPort;
             MainFrame.tapMain.addTab("Room Participant", icon, roomParticipantPanel, "Room Participant");
         }
         MainFrame.tapMain.setSelectedComponent(roomParticipantPanel);
+        closeHome();
     }
     
     public static boolean sendBroadcastMessage(String message) {
@@ -654,8 +680,12 @@ private static int currentMulticastPort;
 
                 if (message.startsWith("ROOM_LIST:")) {
                     String roomList = message.substring(10);
-                    SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
-                    System.out.println("R--" + roomList);
+                    
+                    new javax.swing.Timer(2000, e -> {
+                        SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
+                        System.out.println("R--" + roomList);
+                    }).setRepeats(false);
+                   
                 } else if (message.startsWith("COMMENT:")) {
                     handleCommentMessage(message);
                 } else if (message.startsWith("ROOM_CLOSED:")) {
