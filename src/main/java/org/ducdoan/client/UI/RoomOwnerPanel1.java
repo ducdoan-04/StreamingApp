@@ -197,7 +197,7 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
                         if (client != null && client.isOpen()) {
                             client.send("SCREEN_SHARE:" + encodedImage);
                         } else {
-                            System.out.println("WebSocket connection is not open.");
+                            System.out.println("shareScreen||WebSocket connection is not open.");
                         }
                         SwingUtilities.invokeLater(() -> screenSharePanel.repaint());
                         Thread.sleep(100);
@@ -376,7 +376,7 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
                                 if (client != null && client.isOpen()) {
                                     client.send(encodedImage);
                                 } else {
-                                    System.out.println("WebSocket connection is not open.");
+                                    System.out.println("Owner||WebSocket connection is not open.");
                                 }
                             }
                         } catch (IOException e) {

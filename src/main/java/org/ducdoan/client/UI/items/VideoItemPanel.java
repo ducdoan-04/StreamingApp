@@ -26,15 +26,15 @@ public class VideoItemPanel extends JPanel {
             setStatus(titleStream);
             setPreferredSize(new Dimension(200, 150));
 
-            // Thêm MouseListener cho sự kiện đúp chuột
-            this.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    if (e.getClickCount() == 2) {
-                        onDoubleClick();
-                    }
-                }
-            });
+//            // Thêm MouseListener cho sự kiện đúp chuột
+//            this.addMouseListener(new MouseAdapter() {
+//                @Override
+//                public void mouseClicked(MouseEvent e) {
+//                    if (e.getClickCount() == 2) {
+//                        onDoubleClick();
+//                    }
+//                }
+//            });
         }
     
         

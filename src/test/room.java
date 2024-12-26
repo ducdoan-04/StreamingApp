@@ -292,7 +292,7 @@ public class RoomOwnerPanel extends JPanel {
                                 if (client != null && client.isOpen()) {
                                     client.send(encodedImage);
                                 } else {
-                                    System.out.println("WebSocket connection is not open.");
+                                    System.out.println("room||WebSocket connection is not open.");
                                 }
                             }
                         } catch (IOException e) {
