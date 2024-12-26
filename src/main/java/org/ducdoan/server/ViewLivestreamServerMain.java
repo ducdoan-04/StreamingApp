@@ -1,11 +1,44 @@
 package org.ducdoan.server;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class ViewLivestreamServerMain extends javax.swing.JFrame {
+
+
+    private JTextArea logArea;
 
 
     public ViewLivestreamServerMain() {
         initComponents();
+        addLogArea();
     }
+
+
+    private void addLogArea() {
+        logArea = new JTextArea(20, 50);
+        logArea.setEditable(false);
+        logArea.setBorder(BorderFactory.createEmptyBorder());
+        logArea.setLineWrap(true);
+        logArea.setWrapStyleWord(true);
+
+
+        JScrollPane scrollPane = new JScrollPane(logArea);
+        panel_log.setLayout(new BorderLayout());
+        panel_log.add(scrollPane, BorderLayout.CENTER);
+
+
+        panel_log.revalidate();
+        panel_log.repaint();
+    }
+
+
+    public void updateLog(String message) {
+        logArea.append(message + "\n");
+    }
+
+
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
