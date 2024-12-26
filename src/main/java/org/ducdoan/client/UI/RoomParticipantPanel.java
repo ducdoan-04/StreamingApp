@@ -183,7 +183,7 @@ public class RoomParticipantPanel extends JPanel {
     private void connectWebSocket() {
         try {
             client = new WebSocketClient(
-                    new URI("ws://" + Constants.SERVER_ADDRESS + ":" + ServerConfig.SIGNALING_PORT)) {
+                    new URI("wss://" + Constants.SERVER_ADDRESS + ":" + ServerConfig.SIGNALING_PORT)) {
                 @Override
                 public void onOpen(ServerHandshake handshakedata) {
                     System.out.println("Connected to server");

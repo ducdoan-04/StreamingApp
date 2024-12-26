@@ -16,7 +16,7 @@ public class LivestreamServerMain {
             udpBroadcastServer.start();
 
             int signalingPort = ServerConfig.SIGNALING_PORT;
-            WebRTCSignalingServer signalingServer = new WebRTCSignalingServer(signalingPort);
+            WebRTCSignalingServer signalingServer = new WebRTCSignalingServer(signalingPort);ws://
             signalingServer.onStart();
 
             String serverAddress = InetAddress.getLocalHost().getHostAddress();

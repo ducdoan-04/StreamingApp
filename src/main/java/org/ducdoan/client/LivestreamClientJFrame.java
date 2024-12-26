@@ -46,7 +46,8 @@ private static String currentRoom;
 private static List<String> roomListModel = new ArrayList<>();
 
 private static boolean checkRoomOwnerAfterUpdate = false;
-private static Toaster toaster;
+
+public static Toaster toaster ;
 private static LivestreamClientJFrame MainFrame;
 
 private static String currentMulticastAddress;
@@ -691,7 +692,12 @@ private static int currentMulticastPort;
                 if (message.startsWith("ROOM_LIST:")) {
                     String roomList = message.substring(10);
                     System.out.println("set room" + roomList);
-                    SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
+//                    SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
+                    if (HomePanel != null) {
+                        SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
+                    } else {
+                        System.err.println("HomePanel is null, skipping updateRoomList.");
+                    }
 //                    new javax.swing.Timer(2000, e -> {
 //                        SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
 //                        System.out.println("R--" + roomList);
@@ -715,6 +721,7 @@ private static int currentMulticastPort;
     
     private static void listenForMulticastMessages(String multicastAddress, int multicastPort) {
         new Thread(() -> {
+            System.out.println("day la dia chi multi:"+multicastAddress+"||"+multicastPort);
             try (MulticastSocket socket = new MulticastSocket(multicastPort)) {
                 InetAddress group = InetAddress.getByName(multicastAddress);
                 socket.joinGroup(group);
@@ -763,7 +770,13 @@ private static int currentMulticastPort;
         String roomName = message.split(":")[1];
         System.out.println("Received room closed message for room: " + roomName);
         if (currentRoom != null && currentRoom.equals(roomName)) {
-            toaster.success("The room has been closed by the owner.");
+            
+            if (toaster != null) {
+                toaster.success("The room has been closed by the owner.");
+            } else {
+                System.err.println("Toaster is null.");
+            }
+            
             JOptionPane.showMessageDialog(MainFrame, "The room has been closed by the owner.", "Room Closed",
                     JOptionPane.INFORMATION_MESSAGE);
             leaveRoom();

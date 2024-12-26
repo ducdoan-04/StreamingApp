@@ -71,9 +71,14 @@ public class HomePanel extends JPanel {
             if (roomDetails.length == 7) {
                 String roomName = roomDetails[0];
                 String owner = roomDetails[1];
-                String participants = roomDetails[2];//1221|3|1|6|228.155.139.183|5208
+                String participants = roomDetails[2];// ROOM_LIST:namer|user|view|2|230.108.64.234|5085|title,
 
                 String titleStream = roomDetails[6];
+                
+                LivestreamClientJFrame.setCurrentMulticastAddress(roomDetails[4]);
+                LivestreamClientJFrame.setCurrentMulticastPort(Integer.parseInt(roomDetails[5]));
+                
+                
                 //1221 nameRoom
                 //|3    nameUser
                 //|1    view
