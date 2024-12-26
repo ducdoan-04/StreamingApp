@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioFormat;
@@ -44,6 +46,10 @@ import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.VideoInputFrameGrabber;
 import org.ducdoan.client.LivestreamClientJFrame;
 import org.ducdoan.client.UI.components.UIUtils;
+import org.ducdoan.config.ServerConfig;
+import org.ducdoan.utils.Constants;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 
 
 public class RoomOwnerPanel1 extends javax.swing.JPanel {
@@ -52,6 +58,7 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
     public static JPanel videoPanel;
     public static JPanel screenSharePanel;
     
+    private WebSocketClient client;
     public static FrameGrabber grabber;
     public static Java2DFrameConverter converter;
     public static BufferedImage currentImage;
@@ -165,7 +172,38 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
         //------------------Close room-----------------------------------------
         closeRoomButton.addActionListener(new CloseRoomActionListener());
         //------------------------------------------------------------
+        connectWebSocket();
         startVideoStream();
+    }
+    
+        private void connectWebSocket() {
+        try {
+            client = new WebSocketClient(
+                    new URI("ws://" + Constants.SERVER_ADDRESS + ":" + ServerConfig.SIGNALING_PORT)) {
+                @Override
+                public void onOpen(ServerHandshake handshakedata) {
+                    System.out.println("Connected to server");
+                }
+
+                @Override
+                public void onMessage(String message) {
+                    System.out.println("Received: " + message);
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote) {
+                    System.out.println("Connection closed");
+                }
+
+                @Override
+                public void onError(Exception ex) {
+                    ex.printStackTrace();
+                }
+            };
+            client.connect();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
     
     
