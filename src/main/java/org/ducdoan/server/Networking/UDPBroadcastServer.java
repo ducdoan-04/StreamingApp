@@ -182,7 +182,6 @@ public class UDPBroadcastServer extends Thread {
             socket.setBroadcast(true);
 
             InetAddress group = InetAddress.getByName(ServerConfig.BROADCAST_ADDRESS);
-//            InetAddress group = InetAddress.getByAddress(new byte[] {(byte) 255, (byte) 255, (byte) 255, (byte) 255});
             StringBuilder roomList = new StringBuilder("ROOM_LIST:");
 
             for (Room room : roomManager.getRooms().values()) {

@@ -44,7 +44,7 @@ public class Room {
     public void setRoomName(String roomName) {
         this.roomName = roomName;
     }
-    
+
     public String getTitleStream() {
         return titleStream;
     }

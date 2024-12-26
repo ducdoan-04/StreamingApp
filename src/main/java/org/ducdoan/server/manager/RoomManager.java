@@ -1,5 +1,6 @@
 package org.ducdoan.server.manager;
 
+import org.ducdoan.server.video.VideoStreamManager;
 import org.ducdoan.dao.ParticipantDAO;
 import org.ducdoan.dao.RoomDAO;
 import org.ducdoan.server.model.Participant;
@@ -24,10 +25,10 @@ public class RoomManager {
         this.roomDAO = new RoomDAO();
         this.participantDAO = new ParticipantDAO();
     }
-// String message = "CREATE_ROOM:" + username + ":" + userId + ":" + roomName + ":" + title + ":" + multicastAddress + ":" + multicastPort;
-    public synchronized void createRoom(String roomName,String owner, int ownerId, String multicastAddress, int multicastPort, String titleStream) {
+
+    public synchronized void createRoom(String roomName, String owner, int ownerId, String multicastAddress, int multicastPort,  String titleStream) {
         if (roomName != null && !roomName.trim().isEmpty() && !rooms.containsKey(roomName)) {
-            Room room = new Room(roomName, ownerId, multicastAddress, multicastPort,titleStream);
+            Room room = new Room(roomName, ownerId, multicastAddress, multicastPort, titleStream);
             try {
                 room = roomDAO.createRoom(room);
                 participantDAO.addParticipant(room.getId(), ownerId, titleStream);

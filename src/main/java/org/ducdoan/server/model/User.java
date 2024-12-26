@@ -7,7 +7,7 @@ public class User {
     private String username;
     private String password;
     private String address;
-    
+
     private String fullname;
     private int phonenumber;
     private String email;
@@ -31,50 +31,50 @@ public class User {
         this.email = email;
         this.cic = cic;
         this.birthday = birthday;
-        this.sex = sex;       
-        this.address = address; 
+        this.sex = sex;
+        this.address = address;
         this.image = image;
     }
-        
+
     public User(String username, String fullname, int phonenumber, String email, int cic, String birthday, boolean sex, String password, String address, byte[] image) {
         this.username = username;
         this.phonenumber = phonenumber;
         this.email = email;
         this.cic = cic;
         this.birthday = birthday;
-        this.sex = sex;       
+        this.sex = sex;
         this.password = password;
         this.address = address;
         this.image = image;
     }
-    
-            
+
+
     public User(String username, String fullname, int phonenumber, String email, int cic, String birthday, boolean sex, String password, String address, byte[] image, boolean isOnline) {
         this.username = username;
         this.phonenumber = phonenumber;
         this.email = email;
         this.cic = cic;
         this.birthday = birthday;
-        this.sex = sex;       
+        this.sex = sex;
         this.password = password;
         this.address = address;
         this.image = image;
         this.isOnline = isOnline;
     }
-    
+
     public User(String username,String fullname,boolean isOnline){
         this.username = username;
         this.fullname = fullname;
         this.isOnline = isOnline;
     }
-    
+
     public User(String username, String password, String fullname, byte[] image) {
         this.username = username;
         this.password = password;
         this.fullname = fullname;
         this.image = image;
     }
-    
+
 
     public int getId() {
         return id;
@@ -103,7 +103,7 @@ public class User {
     public String getBirthday() {
         return birthday;
     }
-    
+
     public boolean isSex() {
         return sex;
     }
@@ -176,7 +176,7 @@ public class User {
     public void setAddress(String address) {
         this.address = address;
     }
-    
+
 
     public static class getUser {
 
