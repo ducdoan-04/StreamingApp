@@ -259,6 +259,7 @@ public class RoomParticipantPanel extends JPanel {
             LivestreamClientJFrame.leaveRoom();
             if (client != null) {
                 client.close();
+                
             }
         }
     }

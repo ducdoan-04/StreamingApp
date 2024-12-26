@@ -216,7 +216,7 @@ public class RoomOwnerPanel extends javax.swing.JPanel {
             videoPanel.setBounds(0, 60, 800, 480);
             layeredPane.setLayer(videoPanel, JLayeredPane.DEFAULT_LAYER);
             layeredPane.setLayer(screenSharePanel, JLayeredPane.PALETTE_LAYER);
-            videoPanel.add(controlPanel, BorderLayout.SOUTH);
+//            videoPanel.add(controlPanel, BorderLayout.SOUTH);
             screenSharePanel.repaint();
             if (client != null && client.isOpen()) {
                 client.send("SCREEN_SHARE_STOP");
@@ -582,7 +582,7 @@ public class RoomOwnerPanel extends javax.swing.JPanel {
         videoMainPanel = new javax.swing.JPanel();
         layeredPane = new javax.swing.JLayeredPane();
         jPanel3 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
+        jlbStatus = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -630,7 +630,7 @@ public class RoomOwnerPanel extends javax.swing.JPanel {
 
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
 
-        jLabel5.setText("'Status'");
+        jlbStatus.setText("Xin chào mọi người đã đến với livestreame của mình");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -638,12 +638,12 @@ public class RoomOwnerPanel extends javax.swing.JPanel {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE)
+                .addComponent(jlbStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
+            .addComponent(jlbStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -834,13 +834,13 @@ public class RoomOwnerPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JLabel jlbStatus;
     private javax.swing.JLayeredPane layeredPane;
     private javax.swing.JLabel participantsLabel;
     private javax.swing.JButton sendButton;

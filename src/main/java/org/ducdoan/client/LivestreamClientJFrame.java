@@ -52,19 +52,6 @@ private static int currentMulticastPort;
 
   public LivestreamClientJFrame() {
         initComponents();
-//        this.setResizable(false);
-//        MainFrame = new LivestreamClientJFrame(); // Assign MainFrame here
-//        MainFrame.setTitle("Livestream Application");
-//        MainFrame.setIconImage(new ImageIcon("/LOGO.png").getImage());
-//        MainFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-//        MainFrame.setSize(1100, 630); // 960, 552
-//        MainFrame.setLocationRelativeTo(null);
-//        MainFrame.setVisible(true);
-//        new Thread(LivestreamClientJFrame::listenForBroadcastMessages).start();
-//            if (HomePanel == null) {
-//            HomePanel = new HomePanel();
-//            tapMain.addTab("Main", null, HomePanel, "Main Panel");
-//        }
     }
 
     @SuppressWarnings("unchecked")
@@ -173,7 +160,7 @@ private static int currentMulticastPort;
         jbtFollowing.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         jbtFollowing.setForeground(new java.awt.Color(255, 255, 255));
         jbtFollowing.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON2\\follow.png")); // NOI18N
-        jbtFollowing.setText("Following");
+        jbtFollowing.setText("History");
         jbtFollowing.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 
         jbtAccount.setBackground(new java.awt.Color(138, 217, 163));
@@ -376,7 +363,7 @@ private static int currentMulticastPort;
     }
 
     private void searchFieldActionPerformed(java.awt.event.ActionEvent evt) {                                            
-        // TODO add your handling code here:
+       
     }
 
     private void jbtHomeActionPerformed(java.awt.event.ActionEvent evt) {                                        
@@ -407,8 +394,8 @@ private static int currentMulticastPort;
     private void jbtCreateRoomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtCreateRoomActionPerformed
 
         try {
-            // Tạo JPanel chứa các trường nhập liệu
-            JPanel panel = new JPanel(new GridLayout(2, 2, 5, 5)); // GridLayout để sắp xếp gọn gàng
+           
+            JPanel panel = new JPanel(new GridLayout(2, 2, 5, 5)); 
             JLabel lblRoomName = new JLabel("Enter room name:");
             JTextField txtRoomName = new JTextField();
             JLabel lblTitleStream = new JLabel("Enter title:");
@@ -419,14 +406,13 @@ private static int currentMulticastPort;
             panel.add(lblTitleStream);
             panel.add(txtTitleStream);
 
-            // Hiển thị JOptionPane với JPanel
+           
             int result = JOptionPane.showConfirmDialog(this, panel, "Create Room", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             if (result == JOptionPane.OK_OPTION) {
                 String roomName = txtRoomName.getText().trim();
                 String titleStream = txtTitleStream.getText().trim();
-
-                // Kiểm tra dữ liệu đầu vào
+                
                 if (roomName.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Room name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -546,6 +532,9 @@ private static int currentMulticastPort;
             MainFrame.tapMain.addTab("HOME", icon, HomePanel);
          }
             MainFrame.tapMain.setSelectedComponent(HomePanel);
+            closeRoomParticipant();
+            closeRoomOwner();
+            
     }
     
     public static void closeHome() {
@@ -559,6 +548,28 @@ private static int currentMulticastPort;
             }
         }
     }
+    public static void closeRoomOwner() {
+        if (roomOwnerPanel != null) {
+            int tabIndex = MainFrame.tapMain.indexOfComponent(roomOwnerPanel);
+            if (tabIndex >= 0) {
+                // Đóng tab
+                MainFrame.tapMain.removeTabAt(tabIndex);
+                roomOwnerPanel = null; 
+            }
+        }
+    }
+    
+    public static void closeRoomParticipant() {
+        if (roomParticipantPanel != null) {
+            int tabIndex = MainFrame.tapMain.indexOfComponent(roomParticipantPanel);
+            if (tabIndex >= 0) {
+                // Đóng tab
+                MainFrame.tapMain.removeTabAt(tabIndex);
+                roomParticipantPanel = null; 
+            }
+        }
+    }
+    
     
     public static void showLiveStreamPanel() {
 
@@ -808,7 +819,9 @@ private static int currentMulticastPort;
         if (currentRoom != null) {
             sendBroadcastMessage("LEAVE_ROOM:" + username + ":" + userId + ":" + currentRoom);
             currentRoom = null;
+            
             showMainPanel();
+            
         }
     }
 
