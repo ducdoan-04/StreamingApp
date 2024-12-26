@@ -159,8 +159,8 @@ public class RoomParticipantPanel1 extends JPanel {
             }
         });
     }
-    
-        
+
+
     private void connectWebSocket() {
         try {
             client = new WebSocketClient(
@@ -216,7 +216,7 @@ public class RoomParticipantPanel1 extends JPanel {
             e.printStackTrace();
         }
     }
-        
+
     private void setScreenSharing(boolean isScreenSharing) {
         this.isScreenSharing = isScreenSharing;
         if (isScreenSharing) {

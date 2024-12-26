@@ -271,7 +271,11 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
                         ImageIO.write(screenImage, "jpg", baos);
                         byte[] imageBytes = baos.toByteArray();
                         String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
-                        sendMessage("SCREEN_SHARE:" + encodedImage);
+                        if (client != null && client.isOpen()) {
+                            client.send("SCREEN_SHARE:" + encodedImage);
+                        } else {
+                            System.out.println("WebSocket connection is not open.");
+                        }
                         SwingUtilities.invokeLater(() -> screenSharePanel.repaint());
                         Thread.sleep(100);
                     }
@@ -279,17 +283,21 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
                     e.printStackTrace();
                 }
             }).start();
-            sendMessage("SCREEN_SHARE_START");
+            if (client != null && client.isOpen()) {
+                client.send("SCREEN_SHARE_START");
+            }
             System.out.println("Screen sharing started");
         } else {
             isScreenSharing = false;
             screenImage = null;
-            videoPanel.setBounds(0, 0, 751, 326);
+            videoPanel.setBounds(0, 60, 800, 480);
             layeredPane.setLayer(videoPanel, JLayeredPane.DEFAULT_LAYER);
             layeredPane.setLayer(screenSharePanel, JLayeredPane.PALETTE_LAYER);
-//            videoPanel.add(controlPanel, BorderLayout.SOUTH);
-            this.screenSharePanel.repaint();
-            sendMessage("SCREEN_SHARE_STOP");
+            videoPanel.add(controlPanel, BorderLayout.SOUTH);
+            screenSharePanel.repaint();
+            if (client != null && client.isOpen()) {
+                client.send("SCREEN_SHARE_STOP");
+            }
             System.out.println("Screen sharing stopped");
         }
     }
@@ -304,7 +312,7 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
         if (isCameraOn) {
             try {
                 if (grabber == null) {
-                    grabber = new VideoInputFrameGrabber(1);//set cam
+                    grabber = new VideoInputFrameGrabber(0);//set cam
                     grabber.start();
                 } else {
                     grabber.restart();
@@ -343,9 +351,9 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
                         byte[] buffer = new byte[4096];
                         while (isMicOn && running) {
                             int bytesRead = microphone.read(buffer, 0, buffer.length);
-                            if (bytesRead > 0) {
+                            if (bytesRead > 0 && client != null && client.isOpen()) {
                                 String encodedAudio = Base64.getEncoder().encodeToString(buffer);
-                                sendMessage("AUDIO:" + encodedAudio);
+                                client.send("AUDIO:" + encodedAudio);
                             }
                         }
                     }).start();
@@ -464,7 +472,11 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
                                 ImageIO.write(currentImage, "jpg", baos);
                                 byte[] imageBytes = baos.toByteArray();
                                 String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
-                                sendMessage(encodedImage);
+                                if (client != null && client.isOpen()) {
+                                    client.send(encodedImage);
+                                } else {
+                                    System.out.println("WebSocket connection is not open.");
+                                }
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -483,19 +495,19 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
         }).start();
     }
         
-        private void sendMessage(String message) {
-            try {
-                if (multicastSocket == null || multicastSocket.isClosed()) {
-                    System.err.println("Socket is closed or not initialized");
-                    return;
-                }
-                byte[] buffer = message.getBytes();
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, multicastGroup, LivestreamClientJFrame.getCurrentMulticastPort());
-                multicastSocket.send(packet);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+//        private void sendMessage(String message) {
+//            try {
+//                if (multicastSocket == null || multicastSocket.isClosed()) {
+//                    System.err.println("Socket is closed or not initialized");
+//                    return;
+//                }
+//                byte[] buffer = message.getBytes();
+//                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, multicastGroup, LivestreamClientJFrame.getCurrentMulticastPort());
+//                multicastSocket.send(packet);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
     
         
@@ -545,12 +557,12 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
             }
         }
     }
-    
-        
+
+
     public void addComment(String comment, boolean isOwner) {
         try {
             Style style = doc.addStyle("Style", null);
-            StyleConstants.setForeground(style, isOwner ? Color.RED : Color.WHITE);
+            StyleConstants.setForeground(style, isOwner ? Color.RED : Color.BLACK);
             doc.insertString(doc.getLength(), comment + "\n", style);
         } catch (BadLocationException e) {
             e.printStackTrace();
