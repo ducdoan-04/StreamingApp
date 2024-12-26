@@ -75,8 +75,7 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
     
     public RoomOwnerPanel1() {
         initComponents();
-        
-        participants = new ArrayList<>();
+
         //--------------------videoPanel---------------------------------
         videoPanel = new JPanel(new BorderLayout()) {
             {
@@ -175,83 +174,7 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
         connectWebSocket();
         startVideoStream();
     }
-    
-        private void connectWebSocket() {
-        try {
-            client = new WebSocketClient(
-                    new URI("ws://" + Constants.SERVER_ADDRESS + ":" + ServerConfig.SIGNALING_PORT)) {
-                @Override
-                public void onOpen(ServerHandshake handshakedata) {
-                    System.out.println("Connected to server");
-                }
 
-                @Override
-                public void onMessage(String message) {
-                    System.out.println("Received: " + message);
-                }
-
-                @Override
-                public void onClose(int code, String reason, boolean remote) {
-                    System.out.println("Connection closed");
-                }
-
-                @Override
-                public void onError(Exception ex) {
-                    ex.printStackTrace();
-                }
-            };
-            client.connect();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    
-       
-    private void showParticipantsDialog() {
-        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Participants", Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setLayout(new BorderLayout());
-        dialog.setSize(300, 400);
-        dialog.setLocationRelativeTo(this);
-
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        for (String participant : participants) {
-            listModel.addElement(participant);
-        }
-
-        JList<String> participantsList = new JList<>(listModel);
-        participantsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        participantsList.setFont(UIUtils.FONT_GENERAL_UI);
-        participantsList.setForeground(UIUtils.OFFWHITE);
-        participantsList.setBackground(UIUtils.COLOR_BACKGROUND);
-
-        JScrollPane scrollPane = new JScrollPane(participantsList);
-        dialog.add(scrollPane, BorderLayout.CENTER);
-
-        JButton kickButton = new JButton("Kick");
-        styleButton(kickButton);
-        kickButton.addActionListener(e -> {
-            String selectedParticipant = participantsList.getSelectedValue();
-            if (selectedParticipant != null) {
-                // kickParticipant(selectedParticipant);
-                listModel.removeElement(selectedParticipant);
-            }
-        });
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(UIUtils.COLOR_BACKGROUND);
-        buttonPanel.add(kickButton);
-        dialog.add(buttonPanel, BorderLayout.SOUTH);
-
-        dialog.setVisible(true);
-    }
-    
-    public void updateParticipantsList(List<String> newParticipants) {
-        participants.clear();
-        participants.addAll(newParticipants);
-        updateParticipantsCount(participants.size());
-    }
-    
     private void shareScreen() {
         isScreenSharing = !isScreenSharing;
         screenSharePanel.setVisible(isScreenSharing);
@@ -307,6 +230,7 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
         Image resizedImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         return new ImageIcon(resizedImg);
     }
+
     private void toggleCamera(boolean isOn) {
         isCameraOn = isOn;
         if (isCameraOn) {
@@ -371,7 +295,12 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
             System.out.println("Microphone turned off");
         }
     }
-    
+    public void updateParticipantsList(List<String> newParticipants) {
+        participants.clear();
+        participants.addAll(newParticipants);
+        updateParticipantsCount(participants.size());
+    }
+
     public void updateParticipantsCount(int count) {
         participantsLabel.setText(String.valueOf(count));
     }
@@ -395,8 +324,168 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
             }
         });
     }
-    
-        public static void handleMessage(String message, MulticastSocket multicastSocket, InetAddress multicastGroup) {
+
+    private void connectWebSocket() {
+        try {
+            client = new WebSocketClient(
+                    new URI("ws://" + Constants.SERVER_ADDRESS + ":" + ServerConfig.SIGNALING_PORT)) {
+                @Override
+                public void onOpen(ServerHandshake handshakedata) {
+                    System.out.println("Connected to server");
+                }
+
+                @Override
+                public void onMessage(String message) {
+                    System.out.println("Received: " + message);
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote) {
+                    System.out.println("Connection closed");
+                }
+
+                @Override
+                public void onError(Exception ex) {
+                    ex.printStackTrace();
+                }
+            };
+            client.connect();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startVideoStream() {
+        new Thread(() -> {
+            try {
+                grabber = new VideoInputFrameGrabber(0);//set up camera
+                grabber.start();
+                converter = new Java2DFrameConverter();
+                while (running) {
+                    if (isCameraOn && grabber != null) {
+                        try {
+                            Frame frame = grabber.grab();
+                            if (frame != null) {
+                                currentImage = converter.convert(frame);
+                                videoPanel.repaint();
+
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                ImageIO.write(currentImage, "jpg", baos);
+                                byte[] imageBytes = baos.toByteArray();
+                                String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
+                                if (client != null && client.isOpen()) {
+                                    client.send(encodedImage);
+                                } else {
+                                    System.out.println("WebSocket connection is not open.");
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (FrameGrabber.Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    public void stopAllStreams() {
+        running = false;
+        if (grabber != null) {
+            try {
+                grabber.stop();
+                grabber.release();
+            } catch (FrameGrabber.Exception e) {
+                e.printStackTrace();
+            }
+            grabber = null;
+        }
+        if (microphone != null) {
+            microphone.stop();
+            microphone.close();
+            microphone = null;
+        }
+        isScreenSharing = false;
+    }
+
+    private class SendCommentActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String comment = commentField.getText();
+            if (!comment.trim().isEmpty()) {
+                LivestreamClientJFrame.sendComment(comment);
+                addComment("You: " + comment, true);
+                commentField.setText("");
+            }
+        }
+    }
+
+    private class CloseRoomActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            LivestreamClientJFrame.closeRoom();
+            if (client != null) {
+                client.close();
+            }
+        }
+    }
+
+    public void addComment(String comment, boolean isOwner) {
+        try {
+            Style style = doc.addStyle("Style", null);
+            StyleConstants.setForeground(style, isOwner ? Color.RED : Color.BLACK);
+            doc.insertString(doc.getLength(), comment + "\n", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showParticipantsDialog() {
+        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Participants", Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(300, 400);
+        dialog.setLocationRelativeTo(this);
+
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        for (String participant : participants) {
+            listModel.addElement(participant);
+        }
+
+        JList<String> participantsList = new JList<>(listModel);
+        participantsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        participantsList.setFont(UIUtils.FONT_GENERAL_UI);
+        participantsList.setForeground(UIUtils.OFFWHITE);
+        participantsList.setBackground(UIUtils.COLOR_BACKGROUND);
+
+        JScrollPane scrollPane = new JScrollPane(participantsList);
+        dialog.add(scrollPane, BorderLayout.CENTER);
+
+        JButton kickButton = new JButton("Kick");
+        styleButton(kickButton);
+        kickButton.addActionListener(e -> {
+            String selectedParticipant = participantsList.getSelectedValue();
+            if (selectedParticipant != null) {
+                // kickParticipant(selectedParticipant);
+                listModel.removeElement(selectedParticipant);
+            }
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(UIUtils.COLOR_BACKGROUND);
+        buttonPanel.add(kickButton);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setVisible(true);
+    }
+
+
+    public static void handleMessage(String message, MulticastSocket multicastSocket, InetAddress multicastGroup) {
         SwingUtilities.invokeLater(() -> {
             try {
                 setMulticastSocket(multicastSocket);
@@ -453,47 +542,7 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
         videoPanel.revalidate();
         videoPanel.repaint();
     }
-    
-        private void startVideoStream() {
-        new Thread(() -> {
-            try {
-                grabber = new VideoInputFrameGrabber(0);//Setup camera to default
-                grabber.start();
-                converter = new Java2DFrameConverter();
-                while (running) {
-                    if (isCameraOn && grabber != null) {
-                        try {
-                            Frame frame = grabber.grab();
-                            if (frame != null) {
-                                currentImage = converter.convert(frame);
-                                videoPanel.repaint();
 
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                ImageIO.write(currentImage, "jpg", baos);
-                                byte[] imageBytes = baos.toByteArray();
-                                String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
-                                if (client != null && client.isOpen()) {
-                                    client.send(encodedImage);
-                                } else {
-                                    System.out.println("WebSocket connection is not open.");
-                                }
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (FrameGrabber.Exception e) {
-                e.printStackTrace();
-                 JOptionPane.showMessageDialog(this, "Error: Could not setup video device. Please check if the device is available and not in use by another application.", "Video Device Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }).start();
-    }
         
 //        private void sendMessage(String message) {
 //            try {
@@ -510,64 +559,12 @@ public class RoomOwnerPanel1 extends javax.swing.JPanel {
 //        }
 
     
-        
-    public void stopAllStreams() {
-        running = false;
-        if (grabber != null) {
-            try {
-                grabber.stop();
-                grabber.release();
-            } catch (FrameGrabber.Exception e) {
-                e.printStackTrace();
-            }
-            grabber = null;
-        }
-        if (microphone != null) {
-            microphone.stop();
-            microphone.close();
-            microphone = null;
-        }
-        isScreenSharing = false;
-    }
+
     
-    private class SendCommentActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String comment = commentField.getText();
-            if (!comment.trim().isEmpty()) {
-                LivestreamClientJFrame.sendComment(comment);
-                addComment("You: " + comment, true);
-                commentField.setText("");
-            }
-        }
-    }
-        
-    private class CloseRoomActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            LivestreamClientJFrame.closeRoom();
-            System.err.println("Close room 494");
-            if (multicastSocket != null) {
-                try {
-                    multicastSocket.leaveGroup(multicastGroup);
-                    multicastSocket.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-    }
 
 
-    public void addComment(String comment, boolean isOwner) {
-        try {
-            Style style = doc.addStyle("Style", null);
-            StyleConstants.setForeground(style, isOwner ? Color.RED : Color.BLACK);
-            doc.insertString(doc.getLength(), comment + "\n", style);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-    }
+
+
     
     public static void setMulticastSocket(MulticastSocket multicastSocket) {
         RoomOwnerPanel1.multicastSocket = multicastSocket;

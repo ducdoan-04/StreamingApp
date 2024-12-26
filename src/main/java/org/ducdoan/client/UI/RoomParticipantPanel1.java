@@ -124,6 +124,7 @@ public class RoomParticipantPanel1 extends JPanel {
         JButton leaveRoomButton = new JButton(leaveRomIcon);
         styleButton(leaveRoomButton);
         leaveRoomButton.addActionListener(new LeaveRoomActionListener());
+        controlPanel.add(leaveRoomButton);
         
         //--------------commentPane---------------------------------------
         commentPane.setEditable(false);

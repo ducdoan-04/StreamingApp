@@ -71,7 +71,7 @@ private static int currentMulticastPort;
     }
 
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+
     private void initComponents() {
 
         jPanel6 = new javax.swing.JPanel();
@@ -376,21 +376,13 @@ private static int currentMulticastPort;
         );
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
     private void searchFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchFieldActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_searchFieldActionPerformed
+    }
 
     private void jbtHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtHomeActionPerformed
-//        if(HomePanel == null){
-//            HomePanel = new HomePanel();
-//        String mockRoomList = "Room1|Alice|10,Room2|Bob|20,Room3|Charlie|30";
-//         ImageIcon icon = new ImageIcon(getClass().getResource("/ICON/chat-16.png"));
-//           tapMain.addTab("HOME", icon,HomePanel,"HOME");
-//           HomePanel.updateRoomList(mockRoomList); 
-//        }
-//         tapMain.setSelectedComponent(HomePanel);
         if (HomePanel == null) {
                    HomePanel = new HomePanel(this);
 
@@ -401,13 +393,11 @@ private static int currentMulticastPort;
                        mockRoomList.append(room).append(",");
                    }
 
-                   // Thêm tab và gọi phương thức
                    ImageIcon icon = new ImageIcon(getClass().getResource("/ICON/chat-16.png"));
                    tapMain.addTab("HOME", icon, HomePanel);
-//                   HomePanel.updateRoomList(mockRoomList.toString());
                }
                tapMain.setSelectedComponent(HomePanel);
-    }//GEN-LAST:event_jbtHomeActionPerformed
+    }
 
     private static LivestreamClientJFrame instance;
     public static LivestreamClientJFrame getInstance() {
@@ -590,8 +580,8 @@ private static int currentMulticastPort;
         if (MainFrame.tapMain != null && roomOwnerPanel != null) {
             int index = MainFrame.tapMain.indexOfComponent(roomOwnerPanel);
             if (index != -1) {
-                MainFrame.tapMain.removeTabAt(index); // Xóa tab
-                roomOwnerPanel = null; // Đặt giá trị roomOwnerPanel thành null để giải phóng tham chiếu
+                MainFrame.tapMain.removeTabAt(index);
+                roomOwnerPanel = null;
             }
         }
         showHome();
@@ -621,65 +611,11 @@ private static int currentMulticastPort;
             return false;
         }
     }
-//    public static void listenForBroadcastMessages() {
-//        try (DatagramSocket socket = new DatagramSocket(ClientConfig.BROADCAST_PORT)) {
-//            byte[] buffer = new byte[1024];
-//            System.out.println("Listening for broadcast messages on port " + ClientConfig.BROADCAST_PORT + "...");
-//
-//            while (true) {
-//                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-//                socket.receive(packet);
-//                String message = new String(packet.getData(), 0, packet.getLength());
-//                System.out.println("Received broadcast message: " + message);
-//
-//                // Xử lý thông điệp tùy theo loại message
-//                if (message.startsWith("ROOM_LIST:")) {
-//                    updateRoomList(message.substring(10));
-//                } else if (message.startsWith("COMMENT:")) {
-//                    handleCommentMessage(message);
-//                } else if (message.startsWith("ROOM_CLOSED:")) {
-//                    handleRoomClosedMessage(message);
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-    
 
-//    public static void listenForBroadcastMessages() {
-//        try (DatagramSocket socket = new DatagramSocket(ClientConfig.BROADCAST_PORT)) {
-//            byte[] buffer = new byte[1024];
-//            System.out.println("Listening for broadcast messages on port " + ClientConfig.BROADCAST_PORT + "...");
-//
-//            while (true) {
-//                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-//                socket.receive(packet);
-//                String message = new String(packet.getData(), 0, packet.getLength());
-//                System.out.println("Received broadcast message: " + message);
-//
-//                // Xử lý thông điệp tùy theo loại message
-//                if (message.startsWith("ROOM_LIST:")) {
-////                    updateRoomList(message.substring(10));
-//                      String roomList = message.substring(10);
-//                      SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
-//                      System.out.println("R--"+roomList);
-//                } else if (message.startsWith("COMMENT:")) {
-//                    handleCommentMessage(message);
-//                } else if (message.startsWith("ROOM_CLOSED:")) {
-//                    handleRoomClosedMessage(message);
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
    
     public static void listenForBroadcastMessages() {
-        DatagramSocket socket = null;
-        try {
-            socket = new DatagramSocket(ClientConfig.BROADCAST_PORT);
-            socket.setReuseAddress(true);  // Cho phép tái sử dụng địa chỉ
+        try (DatagramSocket socket = new DatagramSocket(ClientConfig.BROADCAST_PORT)) {
+
             byte[] buffer = new byte[1024];
             System.out.println("Listening for broadcast messages on port " + ClientConfig.BROADCAST_PORT + "...");
 
@@ -702,19 +638,15 @@ private static int currentMulticastPort;
 //                        SwingUtilities.invokeLater(() -> HomePanel.updateRoomList(roomList));
 //                        System.out.println("R--" + roomList);
 //                    }).setRepeats(false);
-                   
+
                 } else if (message.startsWith("COMMENT:")) {
                     handleCommentMessage(message);
                 } else if (message.startsWith("ROOM_CLOSED:")) {
                     handleRoomClosedMessage(message);
                 }
             }
-        } catch (IOException e) {
+        }catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (socket != null && !socket.isClosed()) {
-                socket.close();  // Đảm bảo đóng socket khi không còn cần thiết
-            }
         }
     }
 
@@ -857,8 +789,9 @@ private static int currentMulticastPort;
         System.out.println("Attempting to join room: " + roomName);
         sendBroadcastMessage("JOIN_ROOM:" + username + ":" + userId + ":" + roomName);
         checkRoomOwnerAfterUpdate = true;
-        listenForMulticastMessages(LivestreamClientJFrame.getCurrentMulticastAddress(), LivestreamClientJFrame.getCurrentMulticastPort());
         showRoomParticipantPanel();
+        listenForMulticastMessages(LivestreamClientJFrame.getCurrentMulticastAddress(), LivestreamClientJFrame.getCurrentMulticastPort());
+
     }
 
     public static void closeRoom() {
@@ -867,7 +800,7 @@ private static int currentMulticastPort;
             currentRoom = null;
 //            showMainPanel();
             closeRoomOwnerPanel();
-            System.err.println("close 740");
+            System.err.println("closeRoom++");
             if (roomOwnerPanel != null) {
                 roomOwnerPanel.stopAllStreams();
             }
