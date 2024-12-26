@@ -45,6 +45,28 @@ public class UserDAO {
             return null;
         }
     }
+        
+    public User FindIdByUsername(String username) throws SQLException {
+        String sql = "SELECT id FROM users WHERE username = ?";
+
+        try (
+            Connection con = DatabaseUtils.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql);
+        ) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("id"));
+                    return user;
+                }
+            }
+        }
+
+        return null;
+    }
+    
+    
     private User createUsers (final ResultSet rs) throws SQLException {
         User us = new User();
 

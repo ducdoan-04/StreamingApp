@@ -11,6 +11,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import org.ducdoan.client.UI.HistoryStreamPanel;
 
 import org.ducdoan.client.UI.HomePanel;
 import org.ducdoan.client.UI.LiveStreamPanel;
@@ -32,6 +33,7 @@ private static HomePanel HomePanel;
 private static LiveStreamPanel liveStreamPanel;
 private static RoomOwnerPanel roomOwnerPanel;
 private static RoomParticipantPanel roomParticipantPanel;
+private static HistoryStreamPanel historyStreamPanel;
 //private static JTabbedPane tapMain;
 private static JFrame frame2;
 //-----------------------------
@@ -52,6 +54,17 @@ private static int currentMulticastPort;
 
   public LivestreamClientJFrame() {
         initComponents();
+        
+        jbtFollowing.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if(historyStreamPanel == null){
+                    historyStreamPanel = new HistoryStreamPanel();
+                    ImageIcon icon = new ImageIcon(getClass().getResource("/ICON/chat-16.png"));
+                    tapMain.addTab("History", icon, historyStreamPanel);
+                }
+                tapMain.setSelectedComponent(historyStreamPanel);
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -390,7 +403,8 @@ private static int currentMulticastPort;
         }
         return instance;
     }
-    
+
+
     private void jbtCreateRoomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtCreateRoomActionPerformed
 
         try {
