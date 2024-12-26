@@ -21,6 +21,7 @@ import org.ducdoan.client.UI.LoginPanel;
 import org.ducdoan.client.UI.RegistrationPanel;
 import org.ducdoan.client.UI.RoomOwnerPanel1;
 import org.ducdoan.client.UI.RoomParticipantPanel1;
+import org.ducdoan.client.UI.Setting.Client;
 import org.ducdoan.client.UI.components.Toaster.Toaster;
 import org.ducdoan.client.backend.Backend;
 import org.ducdoan.config.ClientConfig;
@@ -183,6 +184,11 @@ private static int currentMulticastPort;
         jbtAccount.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\ICON2\\user32.png")); // NOI18N
         jbtAccount.setText("Account");
         jbtAccount.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jbtAccount.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtAccountActionPerformed(evt);
+            }
+        });
 
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setIcon(new javax.swing.ImageIcon("D:\\HOC TAP\\HK1 2024 - 2025\\DO AN CO SO 4\\Projects\\StreamingApp\\src\\main\\resources\\bg1.png")); // NOI18N
@@ -490,6 +496,10 @@ private static int currentMulticastPort;
     private void jbtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtSearchActionPerformed
         
     }//GEN-LAST:event_jbtSearchActionPerformed
+
+    private void jbtAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtAccountActionPerformed
+        Client.openView(Client.View.VIEW_ACCOUNT);
+    }//GEN-LAST:event_jbtAccountActionPerformed
 
     public static void main(String args[]) {
         frame2 = new JFrame("Livestream Application");
