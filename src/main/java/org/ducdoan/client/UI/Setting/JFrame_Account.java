@@ -10,15 +10,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import org.ducdoan.client.LivestreamClientJFrame;
+import org.ducdoan.dao.UserDAO;
+import org.ducdoan.server.model.User;
 
 public class JFrame_Account extends javax.swing.JFrame {
 private byte[] personalImage;
@@ -35,8 +35,6 @@ public static JFrame_Account jfAccount;
     }
 
 
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
@@ -413,19 +411,13 @@ public static JFrame_Account jfAccount;
         );
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>                        
 
-    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-     try {
-        processloginSuccessful();
-    } catch (IOException ex) {
-        Logger.getLogger(JFrame_Account.class.getName()).log(Level.SEVERE, null, ex);
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {
+        String username = LivestreamClientJFrame.getUsername();
+       
+        getInformationUser(username);
     }
-
-
-
-
-    }//GEN-LAST:event_formWindowOpened
 
     private void jbt_ImgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbt_ImgActionPerformed
         JFileChooser chooser = new JFileChooser();
@@ -595,97 +587,117 @@ public static JFrame_Account jfAccount;
 
     }//GEN-LAST:event_jtf_CCCDFocusGained
 
-    private void jlb_DiaChiFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jlb_DiaChiFocusGained
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jlb_DiaChiFocusGained
-
-    private void jlb_DiaChiFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jlb_DiaChiFocusLost
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jlb_DiaChiFocusLost
-
-    
-    private void processloginSuccessful () throws IOException{
-
-     String sDT = Integer.toString(Client.user.getPhonenumber());
-     //String cCCD = Integer.toString(Client.user.getCCCD());
-     String cCCD = String.valueOf(Client.user.getCic());
-     String dateString = Client.user.getBirthday();
-     String quequaString = Client.user.getBirthday();
-     String inputPattern = "yyyy-MM-dd";
-     String outputPattern = "dd-MM-yyyy";
-
-        SimpleDateFormat inputDateFormat = new SimpleDateFormat(inputPattern);
-        SimpleDateFormat outputDateFormat = new SimpleDateFormat(outputPattern);
-
-       jtf_Users.setText(Client.user.getUsername());
-       jtf_Name.setText(Client.user.getFullname());
-
-       if(dateString.equals("null")){
-           jtf_Birthday.setText("Vui lòng thêm thông tin!");
-        }else{
-              try {
-                   Date date = inputDateFormat.parse(dateString);
-                   String reversedDate = outputDateFormat.format(date);
-                   jtf_Birthday.setText(reversedDate);
-                   jtf_Birthday.setForeground(new Color(0,0,0));
-                 } catch (ParseException e) {
-                   e.printStackTrace();
-               }
+    private void jlb_DiaChiFocusGained(java.awt.event.FocusEvent evt) {                                       
+        if(jlb_DiaChi.getText().equals("Vui lòng thêm thông tin!"))
+        {
+            jlb_DiaChi.setText("");
+            jlb_DiaChi.setForeground(new Color(0,0,0));//[204,204,204]
         }
+    }
 
+    private void jlb_DiaChiFocusLost(java.awt.event.FocusEvent evt) {
+        if(jlb_DiaChi.getText().equals(""))
+        {
+            jlb_DiaChi.setText("Vui lòng thêm thông tin!");
+            jlb_DiaChi.setForeground(new Color(204,204,204));
 
-       if(cCCD.equals("0")){
-           jtf_CCCD.setText("Vui lòng thêm thông tin!");
-       }else{
-             jtf_CCCD.setText("0"+cCCD);
-             jtf_CCCD.setForeground(new Color(0,0,0));
-       }
+        }
+    }
 
-        if(sDT.equals("0")){
-             jtf_SDT.setText("Vui lòng thêm thông tin!");
+    private void getInformationUser(String username){
+      try {
+          UserDAO dao = new UserDAO();
+          User us = dao.FindUserByUserName(username);
+          if(us != null){
+
+              String sDT = Integer.toString(us.getPhonenumber());
+              String cCCD = String.valueOf(us.getCic());
+              String dateString =us.getBirthday();
+              String quequaString =us.getBirthday();
+              String inputPattern = "yyyy-MM-dd";
+              String outputPattern = "dd-MM-yyyy";
+
+              SimpleDateFormat inputDateFormat = new SimpleDateFormat(inputPattern);
+              SimpleDateFormat outputDateFormat = new SimpleDateFormat(outputPattern);
+
+             jtf_Users.setText(us.getUsername());
+             jtf_Name.setText(us.getFullname());
+
+              if(dateString.equals("null")){
+                  jtf_Birthday.setText("Vui lòng thêm thông tin!");
+              }else{
+                  try {
+                      Date date = inputDateFormat.parse(dateString);
+                      String reversedDate = outputDateFormat.format(date);
+                      jtf_Birthday.setText(reversedDate);
+                      jtf_Birthday.setForeground(new Color(0,0,0));
+                  } catch (ParseException e) {
+                      e.printStackTrace();
+                  }
+              }
+              if(cCCD.equals("0")){
+                  jtf_CCCD.setText("Vui lòng thêm thông tin!");
+              }else{
+                  jtf_CCCD.setText("0"+cCCD);
+                  jtf_CCCD.setForeground(new Color(0,0,0));
+              }
+
+              if(sDT.equals("0")){
+                  jtf_SDT.setText("Vui lòng thêm thông tin!");
+              }else{
+                  jtf_SDT.setText("0"+sDT);
+                  jtf_SDT.setForeground(new Color(0,0,0));
+              }
+
+              System.out.println("f"+us.getSex());
+              if(us.getSex()== true){
+                  rdbt_Nam.setSelected(true);
+              }else
+              if(us.getSex()== false){
+                  rdbt_Nu.setSelected(true);
+              }
+              if(us.getEmail().equals("null")){
+                  jtf_Email.setText("Vui lòng thêm thông tin!");
+              }else{
+                  jtf_Email.setText(us.getEmail());
+                  jtf_Email.setForeground(new Color(0,0,0));
+              }
+              if(us.getAddress().equals("null")){
+                  jlb_DiaChi.setText("VUI LÒNG CẬP NHẬT ĐỊA CHỈ!");
+              }else{
+                  jlb_DiaChi.setText(us.getAddress());
+                  jlb_DiaChi.setForeground(new Color(0,0,0));
+              }
+              if(us.getImage()!= null){
+                  try {
+                      Image img = ImageHelper.createImageFromByteArray(us.getImage(), "jpg");
+                      jlb_IMG.setIcon(new ImageIcon(img));
+                      personalImage = us.getImage();
+                  } catch (IOException ex) {
+                      Logger.getLogger(LivestreamClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+                  }
+              } else {
+                  personalImage = us.getImage();
+                  ImageIcon icon = new ImageIcon(
+                          getClass().getResource("/IconPack/Actions-document-edit-icon-48.png"));
+                  jlb_IMG.setIcon(icon);
+              }
+
           }else{
-            jtf_SDT.setText("0"+sDT);
-            jtf_SDT.setForeground(new Color(0,0,0));
-         }
-
-        System.out.println("f"+Client.user.getSex());
-        if(Client.user.getSex()== true){
-            rdbt_Nam.setSelected(true);
-           }else
-            if(Client.user.getSex()== false){
-             rdbt_Nu.setSelected(true);
-        }
-
-       if(Client.user.getEmail().equals("null")){
-          jtf_Email.setText("Vui lòng thêm thông tin!");
-       }else{
-           jtf_Email.setText(Client.user.getEmail());
-           jtf_Email.setForeground(new Color(0,0,0));
-       }
-
-
-       if(Client.user.getAddress().equals("null")){
-           jlb_DiaChi.setText("VUI LÒNG CẬP NHẬT ĐỊA CHỈ GIAO HÀNG!");
-       }else{
-           jlb_DiaChi.setText(Client.user.getAddress());
-           jlb_DiaChi.setForeground(new Color(0,0,0));
-       }
-
-       if(Client.user.getImage()!= null){
-          try {
-              Image img = ImageHelper.createImageFromByteArray(Client.user.getImage(), "jpg");
-              jlb_IMG.setIcon(new ImageIcon(img));
-              personalImage = Client.user.getImage();
-          } catch (IOException ex) {
-              Logger.getLogger(LivestreamClientJFrame.class.getName()).log(Level.SEVERE, null, ex);
+              JOptionPane.showMessageDialog(this, "KHÔNG TÌM THẤY!!!");
           }
-       } else {
-       personalImage = Client.user.getImage();
-        ImageIcon icon = new ImageIcon(
-       getClass().getResource("/IconPack/Actions-document-edit-icon-48.png"));
-        jlb_IMG.setIcon(icon);
-       }
+      }catch (Exception e) {
+          JOptionPane.showMessageDialog(this, "LỖI"+e.getMessage());
+          e.printStackTrace();
+      }
+    }
 
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new JFrame_Account().setVisible(true);
+            }
+        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

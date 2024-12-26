@@ -4,8 +4,6 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.*;
 import javax.swing.SwingUtilities;
 import java.io.IOException;
@@ -15,12 +13,11 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 import org.ducdoan.client.UI.HomePanel;
-import org.ducdoan.client.UI.MainPanel;
 import org.ducdoan.client.UI.LiveStreamPanel;
 import org.ducdoan.client.UI.LoginPanel;
 import org.ducdoan.client.UI.RegistrationPanel;
-import org.ducdoan.client.UI.RoomOwnerPanel1;
-import org.ducdoan.client.UI.RoomParticipantPanel1;
+import org.ducdoan.client.UI.RoomOwnerPanel;
+import org.ducdoan.client.UI.RoomParticipantPanel;
 import org.ducdoan.client.UI.Setting.Client;
 import org.ducdoan.client.UI.components.Toaster.Toaster;
 import org.ducdoan.client.backend.Backend;
@@ -31,10 +28,10 @@ import org.ducdoan.server.model.Room;
 public class LivestreamClientJFrame extends JFrame {
 
 private static HomePanel HomePanel;
-private static MainPanel MainPanel;
+
 private static LiveStreamPanel liveStreamPanel;
-private static RoomOwnerPanel1 roomOwnerPanel;
-private static RoomParticipantPanel1 roomParticipantPanel;
+private static RoomOwnerPanel roomOwnerPanel;
+private static RoomParticipantPanel roomParticipantPanel;
 //private static JTabbedPane tapMain;
 private static JFrame frame2;
 //-----------------------------
@@ -378,11 +375,11 @@ private static int currentMulticastPort;
         pack();
     }
 
-    private void searchFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchFieldActionPerformed
+    private void searchFieldActionPerformed(java.awt.event.ActionEvent evt) {                                            
         // TODO add your handling code here:
     }
 
-    private void jbtHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtHomeActionPerformed
+    private void jbtHomeActionPerformed(java.awt.event.ActionEvent evt) {                                        
         if (HomePanel == null) {
                    HomePanel = new HomePanel(this);
 
@@ -568,7 +565,7 @@ private static int currentMulticastPort;
     }
     public static void showRoomOwnerPanel() {
         if (roomOwnerPanel == null) {
-            roomOwnerPanel = new RoomOwnerPanel1();
+            roomOwnerPanel = new RoomOwnerPanel();
             ImageIcon icon = new ImageIcon(MainFrame.getClass().getResource("/ICON/chat-16.png"));
             MainFrame.tapMain.addTab("Room Owner", icon, roomOwnerPanel, "Room Owner");
         }
@@ -589,7 +586,7 @@ private static int currentMulticastPort;
 
     public static void showRoomParticipantPanel() {
       if (roomParticipantPanel == null) {
-            roomParticipantPanel = new RoomParticipantPanel1();
+            roomParticipantPanel = new RoomParticipantPanel();
             ImageIcon icon = new ImageIcon(MainFrame.getClass().getResource("/ICON/chat-16.png"));
             MainFrame.tapMain.addTab("Room Participant", icon, roomParticipantPanel, "Room Participant");
         }
@@ -777,7 +774,7 @@ private static int currentMulticastPort;
                 }
             }
 
-            if (MainFrame.getContentPane().getComponent(0) instanceof MainPanel) {
+            if (MainFrame.getContentPane().getComponent(0) instanceof LivestreamClientJFrame) {
                 HomePanel homePanel = (HomePanel) MainFrame.getContentPane().getComponent(0);
                 homePanel.updateRoomList(roomList);
             }
@@ -837,8 +834,8 @@ private static int currentMulticastPort;
             MulticastSocket multicastSocket = new MulticastSocket(multicastPort);
             InetAddress multicastGroup = InetAddress.getByName(multicastAddress);
             multicastSocket.joinGroup(multicastGroup);
-            RoomOwnerPanel1.setMulticastSocket(multicastSocket);
-            RoomOwnerPanel1.setMulticastGroup(multicastGroup);
+            RoomOwnerPanel.setMulticastSocket(multicastSocket);
+            RoomOwnerPanel.setMulticastGroup(multicastGroup);
         } catch (IOException e) {
             e.printStackTrace();
         }

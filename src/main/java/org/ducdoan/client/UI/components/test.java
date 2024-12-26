@@ -6,7 +6,7 @@ import java.awt.event.*;
 import java.sql.SQLException;
 import java.util.Objects;
 
-import org.ducdoan.client.LivestreamClient;
+import org.ducdoan.client.LivestreamClientJFrame;
 import org.ducdoan.client.UI.components.HyperlinkText;
 import org.ducdoan.client.UI.components.TextFieldPassword;
 import org.ducdoan.client.UI.components.TextFieldUsername;
@@ -172,7 +172,7 @@ public class test extends JPanel {
     private void handleRegister(JPanel panel) {
         System.out.println("Sign Up button clicked");
          panel.add(new HyperlinkText(UIUtils.BUTTON_TEXT_REGISTER, 625, 320, () -> {
-            LivestreamClient.showRegistrationPanel();
+            LivestreamClientJFrame.showRegistrationPanel();
         }));
     }
 

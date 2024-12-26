@@ -1,6 +1,7 @@
 package org.ducdoan.client.UI;
 
-import org.ducdoan.client.LivestreamClient;
+
+import org.ducdoan.client.LivestreamClientJFrame;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,7 +37,7 @@ public class LiveStreamPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             String comment = commentField.getText();
             if (!comment.trim().isEmpty()) {
-                LivestreamClient.sendComment(comment);
+                LivestreamClientJFrame.sendComment(comment);
                 commentField.setText("");
             }
         }
